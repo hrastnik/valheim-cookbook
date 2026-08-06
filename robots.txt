@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://valheim-cookbook.vercel.app/sitemap.xml
