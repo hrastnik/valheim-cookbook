@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Valheim Cookbook — recipe search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;600;800&family=Alegreya+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────  tokens  ─────────────────────────────
+   Font sizes are all rem, so the A−/A+ control in the toolbar can scale
+   the whole UI by changing --ui on <html>. */
+:root{
+  --ui:17px;
+  --raise:rgba(255,232,192,.055);
+  --bronze:#7b5f36;
+  --bronze-dim:#4d3b22;
+  --bronze-lit:#c9a05c;
+  --gold:#e8c07a;
+  --parch:#ece0c8;
+  --muted:#9a8b73;
+  --faint:#6d6152;
+  --hp:#e2593d;
+  --stam:#e9b13a;
+  --eitr:#57b6dd;
+  --good:#93b45c;
+  --bad:#c1553a;
+  --fw:'Grenze Gotisch',"Trajan Pro",Georgia,serif;
+  --fb:'Alegreya Sans',"Optima","Segoe UI",system-ui,sans-serif;
+  --r:3px;
+  --side:21.5rem;
+  /* biome hues — the list is flat, so each card carries its own colour */
+  --b-meadows:#8fbf5a;
+  --b-black-forest:#4f9a6a;
+  --b-swamp:#9a8a45;
+  --b-ocean:#5aa8cf;
+  --b-mountain:#bcd6e8;
+  --b-plains:#e0b048;
+  --b-mistlands:#a58cc4;
+  --b-ashlands:#e0663c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:var(--ui)}
+html,body{height:100%}
+body{
+  font-family:var(--fb);
+  background:#0b0906;
+  color:var(--parch);
+  font-size:1rem;
+  line-height:1.35;
+  font-variant-numeric:tabular-nums;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 18% 108%, rgba(196,104,38,.20), transparent 62%),
+    radial-gradient(90% 70% at 92% -12%, rgba(70,104,120,.16), transparent 60%),
+    radial-gradient(140% 120% at 50% 50%, transparent 38%, rgba(0,0,0,.72) 100%),
+    linear-gradient(#0e0c09,#080706);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:99;pointer-events:none;opacity:.36;
+  mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:#0a0806}
+::-webkit-scrollbar-thumb{background:#3a2e1d;border:2px solid #0a0806;border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:#5b4728}
+::selection{background:rgba(201,160,92,.32)}
+
+#app{position:relative;z-index:1;display:grid;grid-template-columns:var(--side) 1fr;height:100vh}
+
+/* ─────────────────────────────  sidebar  ───────────────────────────── */
+aside{
+  display:flex;flex-direction:column;min-height:0;
+  background:linear-gradient(180deg,rgba(22,18,14,.94),rgba(14,12,9,.94));
+  border-right:1px solid var(--bronze-dim);
+  box-shadow:inset -12px 0 24px -18px #000, 1px 0 0 rgba(255,225,180,.045) inset;
+}
+.brand{padding:.95rem 1.05rem .8rem;border-bottom:1px solid var(--bronze-dim)}
+.brand h1{
+  font-family:var(--fw);font-weight:800;font-size:1.8rem;line-height:.95;
+  letter-spacing:.045em;text-transform:uppercase;color:#f0d9ab;
+  text-shadow:0 1px 0 #6a4d24, 0 2px 1px rgba(0,0,0,.9), 0 0 22px rgba(226,140,52,.18);
+}
+.brand h1 span{color:var(--bronze-lit);opacity:.8}
+.brand p{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-top:.3rem}
+.side-scroll{overflow-y:auto;flex:1;min-height:0;padding-bottom:1.6rem}
+
+.block{border-bottom:1px solid rgba(77,59,34,.5);padding:.85rem 1.05rem .95rem}
+.block>h2{
+  font-family:var(--fw);font-size:1.06rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--bronze-lit);display:flex;align-items:center;gap:.55rem;margin-bottom:.65rem;
+}
+.block>h2::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--bronze-dim),transparent)}
+.block>h2 .n{font-family:var(--fb);font-size:.75rem;letter-spacing:.06em;color:var(--faint);text-transform:none}
+
+input[type=text],input[type=search],select{
+  width:100%;background:#0a0806;border:1px solid var(--bronze-dim);color:var(--parch);
+  font:inherit;font-size:.94rem;padding:.42rem .55rem;border-radius:var(--r);outline:none;
+}
+input:focus,select:focus{border-color:var(--bronze-lit);box-shadow:0 0 0 3px rgba(201,160,92,.13)}
+input::placeholder{color:#5d5347}
+select{cursor:pointer;appearance:none;padding-right:1.6rem;
+  background-image:linear-gradient(45deg,transparent 50%,var(--bronze-lit) 50%),linear-gradient(135deg,var(--bronze-lit) 50%,transparent 50%);
+  background-position:calc(100% - .85rem) 51%,calc(100% - .55rem) 51%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+
+/* inventory */
+.finder{position:relative}
+#sugg{
+  position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:40;max-height:19rem;overflow-y:auto;
+  background:#100d0a;border:1px solid var(--bronze);border-radius:var(--r);
+  box-shadow:0 18px 40px -12px #000;display:none;
+}
+#sugg.on{display:block}
+#sugg button{
+  display:flex;align-items:center;gap:.55rem;width:100%;background:none;border:0;
+  border-bottom:1px solid rgba(77,59,34,.35);
+  color:var(--parch);font:inherit;font-size:.94rem;padding:.35rem .55rem;cursor:pointer;text-align:left;
+}
+#sugg button:last-child{border-bottom:0}
+#sugg button.sel,#sugg button:hover{background:rgba(201,160,92,.15);color:#fff2d8}
+#sugg .tag{margin-left:auto;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+img.ico{width:1.65rem;height:1.65rem;object-fit:contain;flex:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8))}
+img.ico.sm{width:1.35rem;height:1.35rem}
+img.ico.lg{width:2.6rem;height:2.6rem}
+
+.inv-list{margin-top:.65rem;display:flex;flex-direction:column;gap:2px}
+.lrow{display:flex;align-items:center;gap:.5rem;padding:.15rem .25rem;border-radius:var(--r)}
+.lrow:hover{background:rgba(255,232,192,.05)}
+.lrow .nm{flex:1;min-width:0;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stepper{display:flex;align-items:center;border:1px solid var(--bronze-dim);border-radius:var(--r);overflow:hidden;flex:none}
+.stepper button{width:1.35rem;height:1.5rem;background:#0a0806;border:0;color:var(--bronze-lit);
+  font:inherit;font-size:1rem;line-height:1;cursor:pointer}
+.stepper button:hover{background:rgba(201,160,92,.2);color:#fff}
+.stepper input{width:2.6rem;height:1.5rem;text-align:center;border:0;
+  border-left:1px solid var(--bronze-dim);border-right:1px solid var(--bronze-dim);
+  background:#070605;color:var(--gold);font:inherit;font-size:.85rem;padding:0;border-radius:0}
+.lrow .kill{background:none;border:0;color:var(--faint);cursor:pointer;font-size:1rem;line-height:1;padding:0 2px;flex:none}
+.lrow .kill:hover{color:var(--bad)}
+.empty{font-size:.86rem;color:var(--faint);font-style:italic;padding:.25rem 0;line-height:1.45}
+.hint{font-size:.77rem;color:var(--faint);margin-top:.5rem;line-height:1.45}
+.linkish{background:none;border:0;color:var(--bronze-lit);font:inherit;font-size:.8rem;cursor:pointer;
+  text-decoration:underline dotted;padding:0}
+.linkish:hover{color:var(--gold)}
+
+/* stations — this control *is* the station filter */
+.stn{display:flex;flex-direction:column;gap:1px}
+.srow{display:flex;align-items:center;gap:.55rem;padding:.28rem .3rem;border-radius:var(--r);cursor:pointer;user-select:none}
+.srow:hover{background:rgba(255,232,192,.05)}
+.srow .box{width:.9rem;height:.9rem;flex:none;border:1px solid var(--bronze);border-radius:2px;
+  background:#0a0806;position:relative}
+.srow.on .box{background:var(--bronze-lit);border-color:var(--gold)}
+.srow.on .box::after{content:'';position:absolute;left:.17rem;top:0;width:.35rem;height:.6rem;
+  border:2px solid #12100c;border-top:0;border-left:0;transform:rotate(40deg)}
+.srow .nm{flex:1;font-size:.9rem;color:var(--muted)}
+.srow.on .nm{color:var(--parch)}
+.srow .cnt{font-size:.77rem;color:var(--faint);flex:none}
+.srow.off .cnt{opacity:.55}
+.crow{padding:.35rem .3rem .1rem}
+.crow .top{display:flex;align-items:center;gap:.55rem;margin-bottom:.35rem}
+.crow .top .nm{flex:1;font-size:.9rem;color:var(--parch)}
+.crow .top .cnt{font-size:.77rem;color:var(--faint)}
+.lvl{display:flex;gap:3px}
+.lvl button{
+  flex:1;height:1.7rem;background:#0a0806;border:1px solid var(--bronze-dim);color:var(--muted);
+  font:inherit;font-size:.88rem;cursor:pointer;border-radius:2px}
+.lvl button:hover{border-color:var(--bronze);color:var(--parch)}
+.lvl button.on{background:linear-gradient(180deg,rgba(201,160,92,.3),rgba(201,160,92,.12));
+  border-color:var(--bronze-lit);color:#ffeecd}
+
+.pills{display:flex;flex-wrap:wrap;gap:.3rem}
+.pill{
+  font-size:.83rem;letter-spacing:.03em;padding:.2rem .55rem;border-radius:100px;cursor:pointer;
+  border:1px solid var(--bronze-dim);background:rgba(255,255,255,.02);color:var(--muted);
+  transition:background .12s,color .12s,border-color .12s;user-select:none;
+}
+.pill:hover{border-color:var(--bronze);color:var(--parch)}
+.pill.on{background:rgba(201,160,92,.2);border-color:var(--bronze-lit);color:#ffeecd;
+  box-shadow:0 0 12px -4px rgba(201,160,92,.5)}
+.pill.on[data-biome]{border-color:var(--bc);color:#fff}
+
+/* ─────────────────────────────  main  ───────────────────────────── */
+main{display:flex;flex-direction:column;min-height:0;min-width:0}
+.bar{
+  display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;flex:none;
+  padding:.6rem 1.15rem;border-bottom:1px solid var(--bronze-dim);background:rgba(12,10,8,.82);
+}
+.bar label{font-size:.72rem;letter-spacing:.11em;text-transform:uppercase;color:var(--faint)}
+.bar select{width:auto;min-width:9rem}
+.bar .grow{flex:1}
+.bar input[type=search]{max-width:18rem}
+.count{font-size:.83rem;color:var(--muted)}
+.count b{color:var(--gold);font-weight:700}
+.zoom{display:flex;align-items:center;gap:2px;border:1px solid var(--bronze-dim);border-radius:var(--r);overflow:hidden}
+.zoom button{width:1.7rem;height:1.55rem;background:#0a0806;border:0;color:var(--bronze-lit);
+  font:inherit;font-size:.85rem;cursor:pointer;line-height:1}
+.zoom button:hover:not(:disabled){background:rgba(201,160,92,.2);color:#fff}
+.zoom button:disabled{opacity:.35;cursor:default}
+
+.scroll{overflow-y:auto;flex:1;min-height:0;padding:.95rem 1.15rem 3.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(17.6rem,1fr));gap:.7rem;align-items:start}
+
+/* ─────────────────────────────  card  ───────────────────────────── */
+.card{
+  position:relative;border:1px solid var(--bronze-dim);border-radius:var(--r);
+  background:linear-gradient(180deg,rgba(32,27,21,.9),rgba(14,12,10,.92));
+  padding:.6rem .7rem .55rem .82rem;overflow:hidden;
+  box-shadow:0 2px 0 rgba(0,0,0,.5), inset 0 1px 0 var(--raise);
+  transition:border-color .13s,box-shadow .13s;
+  animation:rise .22s both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--bc)}
+.card:hover{border-color:var(--bronze);box-shadow:0 8px 22px -14px #000,inset 0 1px 0 var(--raise)}
+.card.now{border-color:rgba(147,180,92,.55)}
+.card.now::after{content:'';position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 22px -10px rgba(147,180,92,.55)}
+body.has-inv .card.short{opacity:.6}
+body.has-inv .card.short:hover{opacity:1}
+
+.ctop{display:flex;gap:.6rem;align-items:flex-start}
+.ctitle{flex:1;min-width:0}
+.ctitle h3{font-family:var(--fw);font-size:1.26rem;font-weight:600;line-height:1.05;
+  letter-spacing:.015em;color:#f4e5c6}
+.tags{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.3rem}
+.tag{
+  font-size:.75rem;letter-spacing:.02em;padding:.06rem .45rem;border-radius:100px;white-space:nowrap;
+  border:1px solid rgba(123,95,54,.55);color:var(--muted);background:rgba(255,232,192,.045);
+}
+.tag.biome{border-color:var(--bc);color:var(--bc);background:rgba(255,255,255,.05);font-weight:600}
+.tag.station{color:#cdbb9c}
+.badge{
+  font-size:.69rem;letter-spacing:.09em;text-transform:uppercase;padding:.1rem .35rem;border-radius:2px;
+  border:1px solid currentColor;flex:none;white-space:nowrap
+}
+.badge.can{color:var(--good)}
+.badge.chain{color:var(--stam)}
+.badge.no{color:var(--faint)}
+/* Nicer tinting where color-mix is supported; the plain rules above stand in elsewhere. */
+@supports (color: color-mix(in srgb, red, blue)){
+  .tag.biome{border-color:color-mix(in srgb,var(--bc) 55%,transparent);
+    background:color-mix(in srgb,var(--bc) 13%,transparent)}
+  .pill.on[data-biome]{background:color-mix(in srgb,var(--bc) 24%,transparent)}
+  .card::before{background:linear-gradient(180deg,var(--bc),color-mix(in srgb,var(--bc) 35%,#000))}
+}
+
+.bars{display:flex;gap:.35rem;margin-top:.55rem}
+.b{flex:1;position:relative;height:1.5rem;border:1px solid rgba(123,95,54,.45);border-radius:2px;
+  background:#080706;overflow:hidden;display:flex;align-items:center}
+.b .fill{position:absolute;left:0;top:0;bottom:0;opacity:.34}
+.b em{position:relative;font-style:normal;font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);padding-left:.35rem}
+.b b{position:relative;margin-left:auto;padding-right:.42rem;font-size:.95rem;font-weight:700}
+.b.hp .fill{background:var(--hp)}.b.hp b{color:#f5a591}
+.b.stam .fill{background:var(--stam)}.b.stam b{color:#f6d891}
+.b.eitr .fill{background:var(--eitr)}.b.eitr b{color:#a9dcf1}
+.b.nil{opacity:.32}.b.nil b{color:var(--faint)}
+
+.mats{margin-top:.55rem;border-top:1px solid rgba(123,95,54,.35);padding-top:.42rem;
+  display:flex;flex-direction:column;gap:.18rem}
+.mat{display:flex;align-items:center;gap:.42rem;font-size:.89rem}
+.mat .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--parch)}
+.mat .q{font-size:.84rem;color:var(--muted);flex:none}
+.mat .q b{color:var(--parch)}
+.mat .st{flex:none;width:1rem;text-align:center;font-size:.84rem}
+.mat.ok .st,.mat.ok .q b{color:var(--good)}
+.mat.no .st,.mat.no .q b{color:var(--bad)}
+.mat.no .nm{color:#c9b79b}
+.mat .sub{flex:none;font-size:.67rem;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.mat .sub.have{color:var(--good)}
+
+.needlist{margin-top:.42rem;display:flex;flex-wrap:wrap;gap:.25rem;align-items:center}
+.needlabel{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-right:2px}
+.need{display:flex;align-items:center;gap:.25rem;font-size:.77rem;border:1px solid rgba(193,85,58,.45);
+  color:#e0a493;background:rgba(193,85,58,.1);border-radius:100px;padding:.06rem .45rem .06rem .18rem}
+.need img{width:1.05rem;height:1.05rem;object-fit:contain}
+
+.cfoot{display:flex;align-items:center;gap:.6rem;margin-top:.5rem;padding-top:.42rem;
+  border-top:1px solid rgba(123,95,54,.35);font-size:.78rem;color:var(--muted);flex-wrap:wrap}
+.cfoot .k{color:var(--faint);letter-spacing:.07em;text-transform:uppercase;font-size:.67rem}
+.cfoot b{color:var(--parch);font-weight:600}
+
+.blank{grid-column:1/-1;text-align:center;padding:3.5rem 1.2rem;color:var(--faint)}
+.blank h3{font-family:var(--fw);font-size:1.6rem;color:var(--bronze);letter-spacing:.08em;margin-bottom:.5rem}
+.foot{grid-column:1/-1;margin-top:1.6rem;padding-top:.7rem;border-top:1px solid rgba(77,59,34,.5);
+  font-size:.78rem;color:var(--faint);line-height:1.6}
+.foot a{color:var(--bronze-lit)}
+.foot code{font-size:.76rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside>
+    <div class="brand">
+      <h1>Valheim <span>Cookbook</span></h1>
+      <p>Recipe search</p>
+    </div>
+    <div class="side-scroll">
+
+      <div class="block">
+        <h2>My inventory <span class="n" id="invCount"></span></h2>
+        <div class="finder">
+          <input type="text" id="invSearch" placeholder="Add an ingredient…"
+                 aria-label="Add an ingredient to your inventory" autocomplete="off" spellcheck="false">
+          <div id="sugg"></div>
+        </div>
+        <div class="inv-list" id="inv"></div>
+        <div class="hint" id="invHint"></div>
+      </div>
+
+      <div class="block">
+        <h2>Stations <span class="n" id="stnCount"></span></h2>
+        <div class="stn" id="stations"></div>
+        <div class="hint">Untick a station to hide everything it makes. Cauldron level rises with
+          Spice rack (2), Butcher's table (3), Pots &amp; pans (4), Mortar &amp; pestle (5), Rolling pins (6).</div>
+      </div>
+
+      <div class="block">
+        <h2>Biome</h2>
+        <div class="pills" id="fBiome"></div>
+        <div class="hint" style="margin-top:.7rem"><button class="linkish" id="reset">Reset everything</button></div>
+      </div>
+
+    </div>
+  </aside>
+
+  <main>
+    <div class="bar">
+      <input type="search" id="q" placeholder="Search recipes &amp; ingredients…" aria-label="Search recipes" autocomplete="off">
+      <label for="avail">Show</label>
+      <select id="avail">
+        <option value="uses">Recipes using my ingredients</option>
+        <option value="cook">Can cook</option>
+        <option value="close">Missing only 1–2 things</option>
+        <option value="all">Everything</option>
+      </select>
+      <label for="sort">Sort</label>
+      <select id="sort">
+        <option value="total">Total buff</option>
+        <option value="hp">Health</option>
+        <option value="stam">Stamina</option>
+        <option value="eitr">Eitr</option>
+        <option value="heal">Healing / tick</option>
+        <option value="duration">Duration</option>
+        <option value="tier">Biome tier</option>
+        <option value="max">How many I can cook</option>
+        <option value="name">Name</option>
+      </select>
+      <span class="pill" id="dir" title="Toggle direction">▼ desc</span>
+      <span class="grow"></span>
+      <span class="count" id="count"></span>
+      <span class="zoom">
+        <button id="zoomOut" title="Smaller text" aria-label="Smaller text">A−</button>
+        <button id="zoomIn" title="Bigger text" aria-label="Bigger text">A+</button>
+      </span>
+    </div>
+    <div class="scroll"><div class="grid" id="grid"></div></div>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+"use strict";
+const D = window.VALHEIM;
+const BIOMES = D.biomeOrder;
+const RECIPES = D.recipes;
+const ITEMS = D.items;
+
+const recipeMap = Object.fromEntries(RECIPES.map(r => [r.name, r]));
+const itemMap   = Object.fromEntries(ITEMS.map(i => [i.name, i]));
+const info = name => recipeMap[name] || itemMap[name] || {name, icon:''};
+const MAXV = {
+  hp: Math.max(...RECIPES.map(r => r.hp)),
+  stam: Math.max(...RECIPES.map(r => r.stam)),
+  eitr: Math.max(...RECIPES.map(r => r.eitr)),
+};
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+
+const STATIONS = [
+  {key:'cook', label:'Cooking station',        station:'Cooking station'},
+  {key:'iron', label:'Iron cooking station',   station:'Iron cooking station'},
+  {key:'prep', label:'Food preparation table', station:'Food preparation table'},
+  {key:'oven', label:'Stone oven',             station:'Food prep table + Stone oven'},
+  {key:'mill', label:'Windmill',               station:'Windmill'},
+];
+const SHORT_STATION = {
+  'Food preparation table': 'Prep table',
+  'Food prep table + Stone oven': 'Prep table + Oven',
+};
+const UI_MIN = 14, UI_MAX = 24;
+
+/* ───────── state ───────── */
+const DEFAULTS = () => ({
+  inv:{}, st:{cook:true,iron:true,prep:true,oven:true,mill:true,cauldron:6},
+  q:'', avail:'uses', sort:'total', dir:-1, biomes:[], ui:17,
+});
+let S = DEFAULTS();
+const KEY = 'valheim-cookbook-v3';
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw) S = Object.assign(DEFAULTS(), JSON.parse(raw));
+} catch(e){}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
+
+/* ───────── crafting maths ───────── */
+function stationOK(r){
+  const st = S.st;
+  switch(r.station){
+    case 'Cooking station': return st.cook || st.iron;   // iron does everything wood does
+    case 'Iron cooking station': return st.iron;
+    case 'Cauldron': return st.cauldron >= r.level;
+    case 'Food preparation table': return st.prep;
+    case 'Food prep table + Stone oven': return st.prep && st.oven;
+    case 'Windmill': return st.mill;
+  }
+  return true;
+}
+
+// Consume `qty` of `name` from `inv`, cooking sub-recipes where possible.
+// Anything that can't be produced accumulates in `out` — the raw shortfall.
+function draw(name, qty, inv, out, depth){
+  const have = inv[name] || 0;
+  const used = Math.min(have, qty);
+  inv[name] = have - used;
+  const need = qty - used;
+  if (need <= 0) return;
+  const r = recipeMap[name];
+  if (!r || depth > 8 || !stationOK(r)) { out[name] = (out[name] || 0) + need; return; }
+  const per = r.yield || 1;
+  const batches = Math.ceil(need / per);
+  inv[name] = (inv[name] || 0) + batches * per - need;      // keep leftovers
+  for (const [m, q] of r.mats) draw(m, q * batches, inv, out, depth + 1);
+}
+
+function batchCost(r, inv){
+  const out = {};
+  for (const [m, q] of r.mats) draw(m, q, inv, out, 0);
+  return out;
+}
+
+// Everything a recipe needs anywhere down the chain, not just its direct
+// ingredients — so Deer stew counts as "using" Deer meat even though the recipe
+// actually calls for Cooked deer meat.
+let treeCache = new Map();
+function ingredientTree(r){
+  if (treeCache.has(r.name)) return treeCache.get(r.name);
+  const set = new Set();
+  treeCache.set(r.name, set);
+  for (const [m] of r.mats) {
+    set.add(m);
+    const sub = recipeMap[m];
+    if (sub && stationOK(sub)) for (const x of ingredientTree(sub)) set.add(x);
+  }
+  return set;
+}
+
+function evaluate(r){
+  const direct = r.mats.map(([name, need]) => ({name, need, have: S.inv[name] || 0}));
+
+  // how many batches could be cooked back to back
+  let inv = {...S.inv}, batches = 0;
+  while (batches < 300) {
+    const snap = {...inv};
+    if (Object.keys(batchCost(r, inv)).length) { inv = snap; break; }
+    inv[r.name] = (inv[r.name] || 0) + (r.yield || 1);
+    batches++;
+  }
+  const missing = batchCost(r, {...S.inv});
+  const nDirect = direct.filter(d => d.have < d.need).length;
+  // "cookable" always includes cooking the sub-recipes first; the badge still
+  // distinguishes the two so you know whether there's prep work.
+  const cookable = Object.keys(missing).length === 0;
+  const status = cookable ? (nDirect === 0 ? 'now' : 'chain') : 'short';
+  return {direct, missing, nMissingKinds: Object.keys(missing).length,
+          canCook: batches * (r.yield || 1), cookable, status};
+}
+
+/* ───────── filtering ───────── */
+function visible(){
+  const q = S.q.trim().toLowerCase();
+  const invNames = Object.keys(S.inv).filter(n => S.inv[n] > 0);
+  return RECIPES.filter(r => {
+    if (!stationOK(r)) return false;                       // stations are the filter
+    // Flour/dough/unbaked parts aren't food; surface them only when searched for.
+    if (r.intermediate && !(q && r.name.toLowerCase().includes(q))) return false;
+    if (S.biomes.length && !S.biomes.includes(r.biome)) return false;
+    if (q) {
+      const tree = ingredientTree(r);
+      if (!r.name.toLowerCase().includes(q) &&
+          ![...tree].some(m => m.toLowerCase().includes(q))) return false;
+    }
+    return true;
+  }).map(r => ({r, e: evaluate(r)})).filter(({r, e}) => {
+    switch (S.avail) {
+      // With an empty inventory there's nothing to match, so show everything
+      // rather than an empty screen.
+      case 'uses':  return !invNames.length ||
+                           invNames.some(n => ingredientTree(r).has(n));
+      case 'cook':  return e.cookable;
+      case 'close': return e.nMissingKinds > 0 && e.nMissingKinds <= 2;
+      default: return true;
+    }
+  });
+}
+
+const SORTV = {
+  total: x => x.r.hp + x.r.stam + x.r.eitr,
+  hp: x => x.r.hp, stam: x => x.r.stam, eitr: x => x.r.eitr,
+  heal: x => x.r.heal, duration: x => x.r.duration, tier: x => x.r.tier,
+  max: x => x.e.canCook, name: x => x.r.name,
+};
+function sorted(list){
+  const f = SORTV[S.sort] || SORTV.total;
+  return list.sort((a,b) => {
+    const va = f(a), vb = f(b);
+    if (va === vb) return a.r.name.localeCompare(b.r.name);
+    return typeof va === 'string' ? S.dir * va.localeCompare(vb) : S.dir * (va - vb);
+  });
+}
+
+/* ───────── helpers ───────── */
+const ic = (name, cls='') => {
+  const i = info(name);
+  return i.icon ? `<img class="ico ${cls}" src="icons/${i.icon}" alt="" loading="lazy">`
+                : `<span class="ico ${cls}"></span>`;
+};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const mins = s => { if (!s) return '—'; const m = Math.floor(s/60), x = s%60; return x ? `${m}m ${x}s` : `${m}m`; };
+const stationLabel = r => r.station === 'Cauldron'
+  ? `Cauldron lv ${r.level}`
+  : (SHORT_STATION[r.station] || r.station);
+
+/* ───────── sidebar: inventory ───────── */
+const ADDABLE = [
+  ...ITEMS.map(i => ({name:i.name, kind:i.cat, biome:i.biome, tier:i.tier})),
+  ...RECIPES.filter(r => !r.feast).map(r => ({name:r.name, kind:'cooked', biome:r.biome, tier:r.tier})),
+].sort((a,b) => a.tier - b.tier || a.name.localeCompare(b.name));
+
+function renderInv(){
+  const names = Object.keys(S.inv).filter(n => S.inv[n] > 0)
+    .sort((a,b) => (info(a).tier||0) - (info(b).tier||0) || a.localeCompare(b));
+  document.getElementById('invCount').textContent =
+    names.length ? `${names.length} item${names.length===1?'':'s'}` : '';
+  document.getElementById('inv').innerHTML = names.length
+    ? names.map(n => `
+      <div class="lrow" data-n="${esc(n)}">
+        ${ic(n,'sm')}
+        <span class="nm" title="${esc(n)}">${esc(n)}</span>
+        <span class="stepper">
+          <button data-d="-1" aria-label="less">−</button>
+          <input type="text" value="${S.inv[n]}" data-qty inputmode="numeric" aria-label="quantity">
+          <button data-d="1" aria-label="more">+</button>
+        </span>
+        <button class="kill" aria-label="remove">×</button>
+      </div>`).join('')
+    : `<div class="empty">Empty — showing every recipe. Add something and the list narrows to
+       recipes that use it, counting ingredients you'd cook along the way.</div>`;
+  document.getElementById('invHint').innerHTML =
+    names.length ? `<button class="linkish" id="clearInv">Clear inventory</button>` : '';
+}
+
+/* ───────── sidebar: stations ───────── */
+function renderStations(){
+  // Static totals so the numbers don't jump as you toggle. Counts everything a
+  // station makes, intermediates included — otherwise the Windmill reads 0 when
+  // its whole job is turning Barley into flour.
+  const tally = st => RECIPES.filter(r => r.station === st).length;
+  const cauldronAt = lvl => RECIPES.filter(r => r.station === 'Cauldron' && r.level <= lvl).length;
+
+  let html = '';
+  for (const s of STATIONS.slice(0,2)) html += srow(s, tally(s.station));
+  html += `<div class="crow">
+      <div class="top"><span class="box" style="visibility:hidden"></span>
+        <span class="nm">Cauldron</span>
+        <span class="cnt">${cauldronAt(S.st.cauldron)} / ${tally('Cauldron')} recipes</span></div>
+      <div class="lvl">${[0,1,2,3,4,5,6].map(l =>
+        `<button class="${S.st.cauldron===l?'on':''}" data-cl="${l}"
+          title="${l ? 'Cauldron level '+l : "Don't have one"}">${l||'—'}</button>`).join('')}</div>
+    </div>`;
+  for (const s of STATIONS.slice(2)) html += srow(s, tally(s.station));
+  document.getElementById('stations').innerHTML = html;
+
+  const foods = RECIPES.filter(r => !r.intermediate);
+  document.getElementById('stnCount').textContent =
+    `${foods.filter(stationOK).length} of ${foods.length} recipes`;
+}
+function srow(s, n){
+  return `<div class="srow ${S.st[s.key]?'on':'off'}" data-stn="${s.key}">
+    <span class="box"></span><span class="nm">${esc(s.label)}</span>
+    <span class="cnt">${n}</span></div>`;
+}
+
+function renderBiomes(){
+  document.getElementById('fBiome').innerHTML = BIOMES.map(b =>
+    `<span class="pill ${S.biomes.includes(b)?'on':''}" data-biome="${esc(b)}"
+       style="--bc:var(--b-${slug(b)})">${esc(b)}</span>`).join('');
+}
+
+/* ───────── grid ───────── */
+function renderGrid(){
+  treeCache = new Map();                     // station state can change the tree
+  const list = sorted(visible());
+  document.getElementById('count').innerHTML =
+    `<b>${list.length}</b> recipe${list.length===1?'':'s'} · <b>${list.filter(x=>x.e.cookable).length}</b> cookable`;
+  const grid = document.getElementById('grid');
+  grid.innerHTML = (list.length
+    ? list.map((x,i) => card(x,i)).join('')
+    : `<div class="blank"><h3>Nothing matches</h3><p>Loosen a filter, or add more to your inventory.</p></div>`
+  ) + footer();
+}
+
+function bar(kind, label, v, max){
+  return `<div class="b ${kind}${v ? '' : ' nil'}">
+    <div class="fill" style="width:${max ? Math.round(v/max*100) : 0}%"></div>
+    <em>${label}</em><b>${v || '–'}</b></div>`;
+}
+
+function card({r, e}, idx){
+  const badge =
+    e.status === 'now'   ? `<span class="badge can">✓ cook now${e.canCook>1?` ×${e.canCook}`:''}</span>`
+  : e.status === 'chain' ? `<span class="badge chain">✓ cook the parts first</span>`
+  : `<span class="badge no" title="${e.nMissingKinds} ingredient kinds short">need ${e.nMissingKinds}</span>`;
+
+  const mats = r.mats.map(([name, need]) => {
+    const have = S.inv[name] || 0, ok = have >= need;
+    // an ingredient you can't hold but could cook from what you do have
+    const sub = recipeMap[name];
+    const canMake = !ok && sub && stationOK(sub) &&
+      Object.keys(batchCost(sub, {...S.inv})).length === 0;
+    return `<div class="mat ${ok?'ok':'no'}">
+      ${ic(name,'sm')}
+      <span class="nm" title="${esc(name)}">${esc(name)}</span>
+      ${canMake ? `<span class="sub have">can cook</span>`
+                : (!ok && sub ? `<span class="sub">cookable</span>` : '')}
+      <span class="q"><b>${have}</b>/${need}</span>
+      <span class="st">${ok?'✓':(canMake?'↻':'✕')}</span>
+    </div>`;
+  }).join('');
+
+  // Only worth listing the raw shortfall when sub-recipes expanded into
+  // something different from the direct ingredients above.
+  const missKeys = Object.keys(e.missing);
+  const directNames = r.mats.map(([m]) => m);
+  const sameAsDirect = missKeys.length === directNames.length && missKeys.every(k => directNames.includes(k));
+  const needList = missKeys.length && !sameAsDirect
+    ? `<div class="needlist"><span class="needlabel">raw</span>${
+        missKeys.map(k => `<span class="need">${ic(k,'sm')}${esc(k)} ×${e.missing[k]}</span>`).join('')}</div>`
+    : '';
+
+  return `<article class="card ${e.status}" style="--bc:var(--b-${slug(r.biome)});animation-delay:${Math.min(idx,16)*10}ms">
+    <div class="ctop">
+      ${ic(r.name,'lg')}
+      <div class="ctitle">
+        <h3>${esc(r.name)}</h3>
+        <div class="tags">
+          <span class="tag biome">${esc(r.biome)}</span>
+          <span class="tag station">${esc(stationLabel(r))}</span>
+          ${r.yield>1?`<span class="tag">makes ${r.yield}</span>`:''}
+          ${r.feast?`<span class="tag">feast · 10 servings</span>`:''}
+        </div>
+      </div>
+      ${badge}
+    </div>
+    ${r.intermediate ? '' : `<div class="bars">
+      ${bar('hp','hp',r.hp,MAXV.hp)}
+      ${bar('stam','stam',r.stam,MAXV.stam)}
+      ${bar('eitr','eitr',r.eitr,MAXV.eitr)}
+    </div>`}
+    <div class="mats">${mats}</div>
+    ${needList}
+    <div class="cfoot">
+      ${r.intermediate
+        ? `<span class="k">ingredient, not food</span>`
+        : `<span class="k">regen</span><b>${r.heal}/tick</b>
+           <span class="k">lasts</span><b>${mins(r.duration)}</b>
+           ${r.weight!=null?`<span class="k">wt</span><b>${r.weight}</b>`:''}`}
+    </div>
+  </article>`;
+}
+
+function footer(){
+  return `<div class="foot">
+    Data scraped from the <a href="https://valheim.fandom.com/wiki/Food" target="_blank" rel="noopener">Valheim wiki</a>
+    — <a href="https://valheim.fandom.com/wiki/Cauldron" target="_blank" rel="noopener">Cauldron</a>,
+    <a href="https://valheim.fandom.com/wiki/Food_preparation_table" target="_blank" rel="noopener">Food preparation table</a>,
+    Feast, Stone oven and Cooking station pages. Icons © Iron Gate Studio.<br>
+    You can eat three different foods at once; buffs decay as
+    <code>bonus × (time left / duration)^0.3</code>, so re-eat at around 50% remaining.
+    Feasts must be placed with a Serving tray. Spice blends come from The Bog Witch.
+  </div>`;
+}
+
+function renderAll(){
+  document.body.classList.toggle('has-inv', Object.values(S.inv).some(v => v > 0));
+  document.documentElement.style.setProperty('--ui', S.ui + 'px');
+  renderInv(); renderStations(); renderBiomes(); renderControls(); renderGrid(); save();
+}
+function renderControls(){
+  document.getElementById('q').value = S.q;
+  document.getElementById('avail').value = S.avail;
+  document.getElementById('sort').value = S.sort;
+  document.getElementById('dir').textContent = S.dir === -1 ? '▼ desc' : '▲ asc';
+  document.getElementById('zoomOut').disabled = S.ui <= UI_MIN;
+  document.getElementById('zoomIn').disabled = S.ui >= UI_MAX;
+}
+
+/* ───────── events ───────── */
+const $ = s => document.querySelector(s);
+
+// autocomplete — rank by match quality so typing an exact name and hitting
+// Enter picks it ("wolf meat" must beat "Cooked wolf meat")
+const searchEl = $('#invSearch'), suggEl = $('#sugg');
+let suggList = [], suggIdx = 0;
+function matchRank(name, q){
+  const n = name.toLowerCase();
+  if (n === q) return 0;
+  if (n.startsWith(q)) return 1;
+  if (new RegExp('\\b' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).test(n)) return 2;
+  return n.includes(q) ? 3 : 99;
+}
+function showSugg(){
+  const q = searchEl.value.trim().toLowerCase();
+  suggList = (q
+    ? ADDABLE.map(a => ({a, r: matchRank(a.name, q)})).filter(x => x.r < 99)
+        .sort((x,y) => x.r - y.r || x.a.tier - y.a.tier || x.a.name.localeCompare(y.a.name))
+        .map(x => x.a)
+    : ADDABLE).slice(0, 60);
+  suggIdx = 0;
+  if (!suggList.length) { suggEl.classList.remove('on'); return; }
+  suggEl.innerHTML = suggList.map((a,i) =>
+    `<button data-add="${esc(a.name)}" class="${i===0?'sel':''}">${ic(a.name,'sm')}
+      <span>${esc(a.name)}</span><span class="tag">${esc(a.kind)} · ${esc(a.biome)}</span></button>`).join('');
+  suggEl.classList.add('on');
+}
+function addInv(name){
+  S.inv[name] = (S.inv[name] || 0) + 1;
+  searchEl.value = ''; suggEl.classList.remove('on');
+  renderAll();
+}
+searchEl.addEventListener('input', showSugg);
+searchEl.addEventListener('focus', showSugg);
+searchEl.addEventListener('keydown', ev => {
+  if (!suggEl.classList.contains('on')) return;
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+    ev.preventDefault();
+    suggIdx = Math.max(0, Math.min(suggList.length-1, suggIdx + (ev.key==='ArrowDown'?1:-1)));
+    [...suggEl.children].forEach((b,i) => b.classList.toggle('sel', i===suggIdx));
+    suggEl.children[suggIdx].scrollIntoView({block:'nearest'});
+  } else if (ev.key === 'Enter') {
+    ev.preventDefault();
+    if (suggList[suggIdx]) addInv(suggList[suggIdx].name);
+  } else if (ev.key === 'Escape') suggEl.classList.remove('on');
+});
+suggEl.addEventListener('click', ev => {
+  const b = ev.target.closest('[data-add]');
+  if (b) addInv(b.dataset.add);
+});
+document.addEventListener('click', ev => {
+  if (!ev.target.closest('.finder')) suggEl.classList.remove('on');
+});
+
+$('#inv').addEventListener('click', ev => {
+  const row = ev.target.closest('.lrow'); if (!row) return;
+  const n = row.dataset.n;
+  if (ev.target.closest('.kill')) { delete S.inv[n]; renderAll(); return; }
+  const step = ev.target.closest('[data-d]');
+  if (step) {
+    S.inv[n] = Math.max(0, (S.inv[n]||0) + (+step.dataset.d));
+    if (!S.inv[n]) delete S.inv[n];
+    renderAll();
+  }
+});
+$('#inv').addEventListener('change', ev => {
+  const inp = ev.target.closest('[data-qty]'); if (!inp) return;
+  const n = inp.closest('.lrow').dataset.n;
+  const v = Math.max(0, parseInt(inp.value, 10) || 0);
+  if (v) S.inv[n] = v; else delete S.inv[n];
+  renderAll();
+});
+$('#invHint').addEventListener('click', ev => {
+  if (ev.target.id === 'clearInv') { S.inv = {}; renderAll(); }
+});
+
+$('#stations').addEventListener('click', ev => {
+  const row = ev.target.closest('[data-stn]');
+  if (row) { S.st[row.dataset.stn] = !S.st[row.dataset.stn]; renderAll(); return; }
+  const lvl = ev.target.closest('[data-cl]');
+  if (lvl) { S.st.cauldron = +lvl.dataset.cl; renderAll(); }
+});
+
+$('#fBiome').addEventListener('click', ev => {
+  const p = ev.target.closest('[data-biome]'); if (!p) return;
+  const b = p.dataset.biome, i = S.biomes.indexOf(b);
+  i < 0 ? S.biomes.push(b) : S.biomes.splice(i,1);
+  renderAll();
+});
+
+let qt;
+$('#q').addEventListener('input', e => {
+  S.q = e.target.value; clearTimeout(qt);
+  qt = setTimeout(() => { renderGrid(); save(); }, 110);
+});
+$('#avail').addEventListener('change', e => { S.avail = e.target.value; renderGrid(); save(); });
+$('#sort').addEventListener('change', e => { S.sort = e.target.value; renderGrid(); save(); });
+$('#dir').addEventListener('click', () => { S.dir = -S.dir; renderControls(); renderGrid(); save(); });
+$('#reset').addEventListener('click', () => { const ui = S.ui; S = DEFAULTS(); S.ui = ui; renderAll(); });
+
+const zoom = d => {
+  S.ui = Math.max(UI_MIN, Math.min(UI_MAX, S.ui + d));
+  document.documentElement.style.setProperty('--ui', S.ui + 'px');
+  renderControls(); save();
+};
+$('#zoomIn').addEventListener('click', () => zoom(1));
+$('#zoomOut').addEventListener('click', () => zoom(-1));
+
+renderAll();
+})();
+</script>
+</body>
+</html>
