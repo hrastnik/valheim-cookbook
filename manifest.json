@@ -1,27 +1,31 @@
 {
   "name": "Valheim Cookbook",
   "short_name": "Cookbook",
-  "description": "Search every Valheim food recipe by the ingredients you already have.",
+  "description": "Search every Valheim food recipe by the ingredients you have.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0b0906",
   "theme_color": "#0b0906",
-  "categories": [
-    "games",
-    "utilities"
-  ],
+  "categories": ["games", "utilities"],
   "icons": [
+    {
+      "src": "web-app-manifest-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "web-app-manifest-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
     {
       "src": "favicon.svg",
       "type": "image/svg+xml",
       "sizes": "any",
       "purpose": "any"
-    },
-    {
-      "src": "apple-touch-icon.png",
-      "type": "image/png",
-      "sizes": "180x180"
     }
   ]
 }
