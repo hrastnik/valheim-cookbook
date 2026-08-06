@@ -4,6 +4,12 @@ A single-page recipe search for Valheim food, meant to sit open on a second moni
 
 **Open `index.html` in a browser.** No install, no build step, no internet needed (icons are stored locally; only the two webfonts come from the network and degrade to system fonts without it).
 
+## Hosting
+
+Plain static files — `index.html` at the root plus `data.js` and `icons/`. Any static host serves it as-is, with no build step.
+
+`vercel.json` declares exactly that: no framework, no build command, output directory `.`. Icons get a one-year immutable cache header since their filenames never change.
+
 ## What it does
 
 - **My inventory** — type in what you're carrying. The list narrows to recipes that use those ingredients, and every card shows `have/need` per ingredient with a `✓ cook now ×N` badge for how many you can make.
