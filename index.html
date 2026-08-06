@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
 <title>Valheim Cookbook — all food recipes, stats &amp; ingredients</title>
 <meta name="description" content="Search every Valheim food recipe by the ingredients you have. Filter by cooking station, cauldron level and biome, and compare health, stamina and eitr.">
@@ -133,7 +133,7 @@ aside{
   border-right:1px solid var(--bronze-dim);
   box-shadow:inset -12px 0 24px -18px #000, 1px 0 0 rgba(255,225,180,.045) inset;
 }
-.brand{padding:.95rem 1.05rem .8rem;border-bottom:1px solid var(--bronze-dim)}
+.brand{position:relative;padding:.95rem 1.05rem .8rem;border-bottom:1px solid var(--bronze-dim)}
 .brand h1{
   font-family:var(--fw);font-weight:800;font-size:1.8rem;line-height:.95;
   letter-spacing:.045em;text-transform:uppercase;color:#f0d9ab;
@@ -344,6 +344,130 @@ body.has-inv .card.short:hover{opacity:1}
   font-size:.78rem;color:var(--faint);line-height:1.6}
 .foot a{color:var(--bronze-lit)}
 .foot code{font-size:.76rem;color:var(--muted)}
+
+/* ───────────────────  drawer chrome (mobile only)  ─────────────────── */
+.drawer-toggle,.drawer-close,.bar-break{display:none}
+.drawer-toggle{
+  align-items:center;gap:.45rem;flex:none;cursor:pointer;
+  background:linear-gradient(180deg,rgba(201,160,92,.16),rgba(0,0,0,.3));
+  border:1px solid var(--bronze);border-radius:var(--r);color:var(--parch);
+  font:inherit;font-size:.87rem;padding:.42rem .7rem;
+}
+.drawer-toggle .ham{width:.95rem;height:.7rem;flex:none;position:relative}
+.drawer-toggle .ham,.drawer-toggle .ham::before,.drawer-toggle .ham::after{
+  border-top:2px solid var(--bronze-lit);box-sizing:border-box}
+.drawer-toggle .ham::before,.drawer-toggle .ham::after{content:'';position:absolute;left:0;right:0}
+.drawer-toggle .ham::before{top:.24rem}
+.drawer-toggle .ham::after{top:.54rem}
+.fbadge{
+  min-width:1.15rem;padding:0 .25rem;border-radius:100px;background:var(--bronze-lit);
+  color:#17120c;font-size:.72rem;font-weight:700;text-align:center;line-height:1.2rem;flex:none}
+.drawer-close{
+  position:absolute;top:.5rem;right:.6rem;width:2.4rem;height:2.4rem;
+  background:rgba(0,0,0,.35);border:1px solid var(--bronze-dim);border-radius:var(--r);
+  color:var(--bronze-lit);font:inherit;font-size:1.5rem;line-height:1;cursor:pointer}
+.drawer-close:hover{color:#fff;border-color:var(--bronze)}
+.drawer-count{display:none}
+/* Keyboard focus should be visible, but in the brand palette rather than
+   Chrome's default blue. */
+button:focus-visible,.pill:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--gold);outline-offset:2px}
+
+@media (max-width:900px){
+  /* Single column: the sidebar becomes an overlay drawer so the recipe grid
+     gets the full viewport width. */
+  #app{grid-template-columns:1fr}
+  aside{
+    position:fixed;z-index:60;top:0;bottom:0;left:0;
+    width:min(88vw,23rem);
+    padding-left:env(safe-area-inset-left);
+    transform:translateX(-100%);
+    transition:transform .22s ease;
+    box-shadow:0 0 40px rgba(0,0,0,.7);
+    overscroll-behavior:contain;
+    /* Opaque as an overlay — the translucent desktop panel let the recipe
+       list read through it. */
+    background:linear-gradient(180deg,#17130e,#0e0c09);
+  }
+  .drawer-count{
+    display:block;padding:.6rem 1.05rem;font-size:.85rem;color:var(--muted);
+    border-bottom:1px solid rgba(77,59,34,.5);background:rgba(201,160,92,.07)}
+  .drawer-count b{color:var(--gold);font-weight:700}
+  body.drawer-open aside{transform:none}
+  body.drawer-open .scroll{overflow:hidden}      /* don't scroll behind the drawer */
+  #backdrop{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);
+    opacity:0;transition:opacity .22s ease}
+  body.drawer-open #backdrop{opacity:1}
+  .drawer-toggle{display:inline-flex}
+  .drawer-close{display:block}
+
+  /* Toolbar reflows to two rows: [Filters | search | A-A+] then the selects. */
+  .bar{padding:.55rem .7rem;gap:.4rem;row-gap:.45rem}
+  .bar-break{display:block;order:4;flex:0 0 100%;height:0}
+  .bar label{display:none}
+  .bar .grow{display:none}
+  .drawer-toggle{order:1}
+  #q{order:2;flex:1 1 6rem;max-width:none;min-width:0}
+  .zoom{order:3}
+  /* Natural width here — there's room for the selects, dir and count on one
+     row. Only the ≤560 block forces a percentage split. */
+  #avail{order:5;flex:0 1 auto;min-width:0}
+  #sort{order:6;flex:0 1 auto;min-width:0}
+  #dir{order:7}
+  .count{order:8;margin-left:auto;text-align:right}
+
+  .scroll{padding:.7rem .7rem 3rem;
+    padding-left:max(.7rem,env(safe-area-inset-left));
+    padding-right:max(.7rem,env(safe-area-inset-right))}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));gap:.6rem}
+
+  /* Fingers need more room than a mouse pointer. */
+  .stepper button{width:2.1rem;height:2.1rem;font-size:1.15rem}
+  .stepper input{width:2.9rem;height:2.1rem;font-size:.95rem}
+  .lrow{padding:.3rem .25rem}
+  .lrow .kill{padding:.35rem .45rem;font-size:1.15rem}
+  .srow{padding:.5rem .35rem}
+  .srow .box{width:1.1rem;height:1.1rem}
+  .srow.on .box::after{left:.22rem;width:.42rem;height:.72rem}
+  .lvl button{height:2.3rem}
+  .pill{padding:.35rem .7rem}
+  #sugg button{padding:.55rem .6rem}
+  .block{padding:1rem 1.05rem 1.1rem}
+}
+
+/* Wide enough for one toolbar row — drop the forced break and let flex pack
+   it. Matters most in phone landscape, where vertical space is scarce. */
+@media (min-width:700px) and (max-width:900px){
+  .bar-break{display:none}
+}
+
+@media (max-width:560px){
+  .grid{grid-template-columns:1fr}
+  .brand h1{font-size:1.6rem}
+  /* Three tight rows: [Filters … count] / [search] / [Show Sort dir].
+     Text scaling is dropped here — browser zoom covers it, and the row it
+     needed was a tenth of a phone screen. */
+  .zoom{display:none}
+  .bar-break{display:none}
+  .drawer-toggle{order:1}
+  .count{order:2;margin-left:auto;white-space:nowrap}
+  #q{order:3;flex:1 1 100%}
+  #avail{order:5;flex:1 1 46%}
+  #sort{order:6;flex:1 1 28%}
+  #dir{order:7}
+  /* Claw back some vertical space per card */
+  .card{padding:.5rem .6rem .5rem .72rem}
+  .bars{margin-top:.45rem;gap:.3rem}
+  .mats{margin-top:.45rem;padding-top:.35rem}
+  .cfoot{margin-top:.4rem;padding-top:.35rem}
+}
+
+/* Phone viewports: 100vh jumps as the address bar hides. dvh tracks it. */
+@supports (height:100dvh){
+  @media (max-width:900px){
+    #app{height:100dvh}
+  }
+}
 </style>
 </head>
 <body>
@@ -358,11 +482,14 @@ body.has-inv .card.short:hover{opacity:1}
   </div>
 </noscript>
 <div id="app">
-  <aside>
+  <div id="backdrop" hidden></div>
+  <aside id="sidebar">
     <div class="brand">
+      <button class="drawer-close" id="drawerClose" aria-label="Close filters">×</button>
       <h1>Valheim <span>Cookbook</span></h1>
       <p>Recipe search</p>
     </div>
+    <div class="drawer-count" id="drawerCount" aria-live="polite"></div>
     <div class="side-scroll">
 
       <div class="block">
@@ -394,12 +521,16 @@ body.has-inv .card.short:hover{opacity:1}
 
   <main>
     <div class="bar">
-      <input type="search" id="q" placeholder="Search recipes &amp; ingredients…" aria-label="Search recipes" autocomplete="off">
+      <button class="drawer-toggle" id="drawerToggle" aria-controls="sidebar" aria-expanded="false">
+        <span class="ham" aria-hidden="true"></span>Filters<span class="fbadge" id="fbadge" hidden></span>
+      </button>
+      <input type="search" id="q" placeholder="Search recipes…" aria-label="Search recipes" autocomplete="off">
+      <span class="bar-break" aria-hidden="true"></span>
       <label for="avail">Show</label>
       <select id="avail">
-        <option value="uses">Recipes using my ingredients</option>
+        <option value="uses">Uses my ingredients</option>
         <option value="cook">Can cook</option>
-        <option value="close">Missing only 1–2 things</option>
+        <option value="close">Missing 1–2 things</option>
         <option value="all">Everything</option>
       </select>
       <label for="sort">Sort</label>
@@ -669,8 +800,11 @@ function renderBiomes(){
 function renderGrid(){
   treeCache = new Map();                     // station state can change the tree
   const list = sorted(visible());
-  document.getElementById('count').innerHTML =
-    `<b>${list.length}</b> recipe${list.length===1?'':'s'} · <b>${list.filter(x=>x.e.cookable).length}</b> cookable`;
+  const summary = `<b>${list.length}</b> recipe${list.length===1?'':'s'} · <b>${list.filter(x=>x.e.cookable).length}</b> cookable`;
+  document.getElementById('count').innerHTML = summary;
+  // Mirrored inside the drawer so the number visibly moves as you tick
+  // filters on mobile, where the toolbar is hidden behind the overlay.
+  document.getElementById('drawerCount').innerHTML = summary;
   const grid = document.getElementById('grid');
   grid.innerHTML = (list.length
     ? list.map((x,i) => card(x,i)).join('')
@@ -771,6 +905,16 @@ function renderControls(){
   document.getElementById('dir').textContent = S.dir === -1 ? '▼ desc' : '▲ asc';
   document.getElementById('zoomOut').disabled = S.ui <= UI_MIN;
   document.getElementById('zoomIn').disabled = S.ui >= UI_MAX;
+
+  // With the drawer closed on mobile, this badge is the only clue that
+  // filters are narrowing the list.
+  const d = DEFAULTS().st;
+  const stationsChanged = Object.keys(d).some(k => S.st[k] !== d[k]);
+  const n = Object.values(S.inv).filter(v => v > 0).length
+          + S.biomes.length + (stationsChanged ? 1 : 0);
+  const badge = document.getElementById('fbadge');
+  badge.textContent = n;
+  badge.hidden = n === 0;
 }
 
 /* ───────── events ───────── */
@@ -881,6 +1025,26 @@ const zoom = d => {
 };
 $('#zoomIn').addEventListener('click', () => zoom(1));
 $('#zoomOut').addEventListener('click', () => zoom(-1));
+
+/* ───────── mobile drawer ───────── */
+const backdrop = $('#backdrop'), toggle = $('#drawerToggle');
+function setDrawer(open){
+  document.body.classList.toggle('drawer-open', open);
+  backdrop.hidden = !open;
+  toggle.setAttribute('aria-expanded', String(open));
+  if (open) $('#drawerClose').focus();
+  else toggle.focus();
+}
+const drawerOpen = () => document.body.classList.contains('drawer-open');
+toggle.addEventListener('click', () => setDrawer(!drawerOpen()));
+$('#drawerClose').addEventListener('click', () => setDrawer(false));
+backdrop.addEventListener('click', () => setDrawer(false));
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && drawerOpen() && !suggEl.classList.contains('on')) setDrawer(false);
+});
+// Widening past the breakpoint puts the sidebar back in the layout; leaving the
+// open class on would then lock the grid's scroll.
+matchMedia('(min-width:901px)').addEventListener('change', e => { if (e.matches) setDrawer(false); });
 
 renderAll();
 })();
