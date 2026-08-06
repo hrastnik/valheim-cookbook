@@ -10,15 +10,19 @@ permissions:
   pages: write
   id-token: write
 
+# Let a queued deploy finish rather than cancelling it — a cancelled deploy is
+# what left an earlier run wedged.
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # Build and deploy MUST stay separate jobs. With both in one job, re-running
+  # the workflow uploads a second "github-pages" artifact into the same run, and
+  # deploy-pages@v4 then fails with "Multiple artifacts named github-pages were
+  # unexpectedly found". Split like this, re-running just the deploy job reuses
+  # the artifact the build job already produced.
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,6 +31,18 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # GitHub's deploy queue was taking over 10 minutes; the 10m default
+          # would abort before it got serviced.
+          timeout: 1800000
