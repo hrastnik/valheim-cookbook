@@ -4,11 +4,34 @@ A single-page recipe search for Valheim food, meant to sit open on a second moni
 
 **Open `index.html` in a browser.** No install, no build step, no internet needed (icons are stored locally; only the two webfonts come from the network and degrade to system fonts without it).
 
+Live at **https://valheim-cookbook.vercel.app**
+
 ## Hosting
 
 Plain static files — `index.html` at the root plus `data.js` and `icons/`. Any static host serves it as-is, with no build step.
 
 `vercel.json` declares exactly that: no framework, no build command, output directory `.`. Icons get a one-year immutable cache header since their filenames never change.
+
+## SEO and social
+
+The canonical URL is hardcoded in five places, because scrapers don't reliably resolve relative URLs. **On a custom domain, update:** the `canonical`, `og:url`, `og:image` and `twitter:image` tags plus the JSON-LD `url`/`screenshot` in `index.html`, the `Sitemap:` line in `robots.txt`, and `<loc>` in `sitemap.xml`. Icon and manifest links are deliberately *relative* so opening `index.html` straight off disk still works.
+
+| File | |
+|---|---|
+| `og-image.jpg` | 1200×800, 158KB — the social card, derived from `valheim-og-image.png` |
+| `valheim-og-image.png` | 1536×1024 source art (2MB; only kept for re-exporting) |
+| `favicon.svg` / `.ico` / `-96x96.png` | favicons |
+| `apple-touch-icon.png` | 180×180 for iOS home screen |
+| `web-app-manifest-{192,512}.png` | manifest icons |
+| `manifest.json` | installable as a standalone window — handy on a second monitor |
+| `robots.txt`, `sitemap.xml` | crawler basics |
+
+Two deliberate choices:
+
+- The source art is 1.5:1, but social cards are ~1.91:1. Cropping to 1.91 would clip either the Valheim logo or the mockup panel, so the card ships at the source ratio and lets each platform crop as it sees fit. Slack, Discord and iMessage show it whole; Facebook and X centre-crop it.
+- Manifest icons declare `purpose: "any"`, not `"maskable"`. The medallion fills 506×501 of its 512 canvas, so Android's 80% maskable safe zone would crop the rim.
+
+Recipe content is rendered by JavaScript, so it isn't in the HTML source. Googlebot renders JS and will index it, but if search traffic ever matters, the robust fix is to have `scripts/scrape.py` also emit a static recipe list into the page.
 
 ## What it does
 
