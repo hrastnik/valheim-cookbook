@@ -58,7 +58,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Grenze+Gotisch:wght@400;600;800&family=Metamorphous&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Grenze:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 /* ─────────────────────────────  tokens  ─────────────────────────────
    Font sizes are all rem, so the A−/A+ control in the toolbar can scale
@@ -78,12 +78,8 @@
   --eitr:#57b6dd;
   --good:#93b45c;
   --bad:#c1553a;
-  --fw:'Grenze Gotisch',"Trajan Pro",Georgia,serif;
+  --fw:'Grenze',Georgia,serif;
   --fb:'Alegreya Sans',"Optima","Segoe UI",system-ui,sans-serif;
-  /* Recipe names only. Grenze Gotisch keeps the chrome looking carved, but its
-     blackletter edge turns to mush at card-title size, so the names get a
-     rounder face and fall back to the display font when it can't load. */
-  --fc:'Metamorphous','Grenze Gotisch',Georgia,serif;
   --r:3px;
   --side:21.5rem;
   /* biome hues — the list is flat, so each card carries its own colour */
@@ -156,7 +152,7 @@ aside{
 
 .block{border-bottom:1px solid rgba(77,59,34,.5);padding:.85rem 1.05rem .95rem}
 .block>h2{
-  font-family:var(--fw);font-size:1.06rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
+  font-family:var(--fw);font-size:1.06rem;font-weight:600;letter-spacing:.04em;
   color:var(--bronze-lit);display:flex;align-items:center;gap:.55rem;margin-bottom:.65rem;
 }
 .block>h2::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--bronze-dim),transparent)}
@@ -290,8 +286,7 @@ body.has-inv .card.short:hover{opacity:1}
 
 .ctop{display:flex;gap:.6rem;align-items:flex-start}
 .ctitle{flex:1;min-width:0}
-/* Metamorphous ships one weight, so 600 here would only get faux-bolded. */
-.ctitle h3{font-family:var(--fc);font-size:1.22rem;font-weight:400;line-height:1.05;
+.ctitle h3{font-family:var(--fw);font-size:1.28rem;font-weight:600;line-height:1.05;
   letter-spacing:.005em;color:#f4e5c6}
 .tags{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.3rem}
 .tag{

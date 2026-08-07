@@ -2,7 +2,7 @@
 
 A single-page recipe search for Valheim food, meant to sit open on a second monitor while you play.
 
-**Open `index.html` in a browser.** No install, no build step, no internet needed (icons are stored locally; only the three webfonts come from the network and degrade to system fonts without it).
+**Open `index.html` in a browser.** No install, no build step, no internet needed (icons are stored locally; only the two webfonts come from the network and degrade to system fonts without it).
 
 Live at **https://valheim-cookbook.vercel.app**
 
