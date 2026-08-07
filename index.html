@@ -58,7 +58,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;600;800&family=Alegreya+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Grenze+Gotisch:wght@400;600;800&family=Metamorphous&display=swap" rel="stylesheet">
 <style>
 /* ─────────────────────────────  tokens  ─────────────────────────────
    Font sizes are all rem, so the A−/A+ control in the toolbar can scale
@@ -80,6 +80,10 @@
   --bad:#c1553a;
   --fw:'Grenze Gotisch',"Trajan Pro",Georgia,serif;
   --fb:'Alegreya Sans',"Optima","Segoe UI",system-ui,sans-serif;
+  /* Recipe names only. Grenze Gotisch keeps the chrome looking carved, but its
+     blackletter edge turns to mush at card-title size, so the names get a
+     rounder face and fall back to the display font when it can't load. */
+  --fc:'Metamorphous','Grenze Gotisch',Georgia,serif;
   --r:3px;
   --side:21.5rem;
   /* biome hues — the list is flat, so each card carries its own colour */
@@ -286,8 +290,9 @@ body.has-inv .card.short:hover{opacity:1}
 
 .ctop{display:flex;gap:.6rem;align-items:flex-start}
 .ctitle{flex:1;min-width:0}
-.ctitle h3{font-family:var(--fw);font-size:1.26rem;font-weight:600;line-height:1.05;
-  letter-spacing:.015em;color:#f4e5c6}
+/* Metamorphous ships one weight, so 600 here would only get faux-bolded. */
+.ctitle h3{font-family:var(--fc);font-size:1.22rem;font-weight:400;line-height:1.05;
+  letter-spacing:.005em;color:#f4e5c6}
 .tags{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.3rem}
 .tag{
   font-size:.75rem;letter-spacing:.02em;padding:.06rem .45rem;border-radius:100px;white-space:nowrap;
