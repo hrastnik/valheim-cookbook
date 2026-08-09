@@ -1,7 +1,8 @@
 // Valheim food data, scraped from valheim.fandom.com
 // Regenerate with: python3 scripts/scrape.py
 // Sources: /wiki/Food, /wiki/Cauldron, /wiki/Food_preparation_table,
-//          /wiki/Feast, /wiki/Stone_oven, /wiki/Cooking_station.
+//          /wiki/Feast, /wiki/Stone_oven, /wiki/Cooking_station,
+//          /wiki/Mead, /wiki/Mead_Ketill, /wiki/Fermenter.
 window.VALHEIM = {
  "biomeOrder": [
   "Meadows",
@@ -13,6 +14,7 @@ window.VALHEIM = {
   "Mistlands",
   "Ashlands"
  ],
+ "fermentTime": "2 in-game days",
  "items": [
   {
    "name": "Raspberries",
@@ -679,6 +681,174 @@ window.VALHEIM = {
    "tier": 8,
    "source": "Buy from The Bog Witch — 200 coins / 5 (after Fader)",
    "cat": "vendor",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Coal",
+   "icon": "coal.webp",
+   "biome": "Meadows",
+   "tier": 1,
+   "source": "Charcoal kiln, overcooking meat, Surtlings",
+   "cat": "craft",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Feathers",
+   "icon": "feathers.webp",
+   "biome": "Meadows",
+   "tier": 1,
+   "source": "Gulls, crows, hens; chests; felled beech & fir",
+   "cat": "drop",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Perch",
+   "icon": "perch.webp",
+   "biome": "Meadows",
+   "tier": 1,
+   "source": "Fishing offshore Meadows & Black Forest (Fishing bait)",
+   "cat": "fish",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Trollfish",
+   "icon": "trollfish.webp",
+   "biome": "Black Forest",
+   "tier": 2,
+   "source": "Fishing offshore Black Forest (Mossy fishing bait)",
+   "cat": "fish",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Fresh seaweed",
+   "icon": "fresh-seaweed.webp",
+   "biome": "Swamp",
+   "tier": 3,
+   "source": "Buy from The Bog Witch — 75 coins / 5",
+   "cat": "vendor",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Cured squirrel hamstring",
+   "icon": "cured-squirrel-hamstring.webp",
+   "biome": "Swamp",
+   "tier": 3,
+   "source": "Buy from The Bog Witch — 80 coins / 5",
+   "cat": "vendor",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Powdered dragon eggshells",
+   "icon": "powdered-dragon-eggshells.webp",
+   "biome": "Swamp",
+   "tier": 3,
+   "source": "Buy from The Bog Witch — 120 coins / 5",
+   "cat": "vendor",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Pungent pebbles",
+   "icon": "pungent-pebbles.webp",
+   "biome": "Swamp",
+   "tier": 3,
+   "source": "Buy from The Bog Witch — 125 coins / 5",
+   "cat": "vendor",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Toadstool",
+   "icon": "toadstool.webp",
+   "biome": "Mountain",
+   "tier": 5,
+   "source": "Buy from The Bog Witch — 85 coins (after Moder)",
+   "cat": "vendor",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Fragrant bundle",
+   "icon": "fragrant-bundle.webp",
+   "biome": "Mountain",
+   "tier": 5,
+   "source": "Buy from The Bog Witch — 140 coins / 5 (after Moder)",
+   "cat": "vendor",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Grouper",
+   "icon": "grouper.webp",
+   "biome": "Plains",
+   "tier": 6,
+   "source": "Fishing offshore Plains (Stingy fishing bait)",
+   "cat": "fish",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Scale hide",
+   "icon": "scale-hide.webp",
+   "biome": "Mistlands",
+   "tier": 7,
+   "source": "Hare",
+   "cat": "drop",
    "hp": 0,
    "stam": 0,
    "eitr": 0,
@@ -2554,6 +2724,584 @@ window.VALHEIM = {
    "intermediate": true,
    "feast": false,
    "yield": 2
+  }
+ ],
+ "meads": [
+  {
+   "name": "Fire resistance barley wine",
+   "icon": "fire-resistance-barley-wine.webp",
+   "base": "Barley wine base: Fire resistance",
+   "baseIcon": "barley-wine-base-fire-resistance.webp",
+   "effect": "Fire resistance",
+   "kind": "resistance",
+   "group": "",
+   "duration": 600,
+   "cooldown": 600,
+   "biome": "Plains",
+   "tier": 6,
+   "mats": [
+    [
+     "Barley",
+     10
+    ],
+    [
+     "Cloudberries",
+     10
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Frost resistance mead",
+   "icon": "frost-resistance-mead.webp",
+   "base": "Mead base: Frost resistance",
+   "baseIcon": "mead-base-frost-resistance.webp",
+   "effect": "Frost resistance",
+   "kind": "resistance",
+   "group": "",
+   "duration": 600,
+   "cooldown": 600,
+   "biome": "Swamp",
+   "tier": 3,
+   "mats": [
+    [
+     "Honey",
+     10
+    ],
+    [
+     "Thistle",
+     5
+    ],
+    [
+     "Bloodbag",
+     2
+    ],
+    [
+     "Greydwarf eye",
+     1
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Minor healing mead",
+   "icon": "minor-healing-mead.webp",
+   "base": "Mead base: Minor healing",
+   "baseIcon": "mead-base-minor-healing.webp",
+   "effect": "50 health",
+   "kind": "health",
+   "group": "healing",
+   "duration": 10,
+   "cooldown": 120,
+   "biome": "Black Forest",
+   "tier": 2,
+   "mats": [
+    [
+     "Honey",
+     10
+    ],
+    [
+     "Blueberries",
+     5
+    ],
+    [
+     "Raspberries",
+     10
+    ],
+    [
+     "Dandelion",
+     1
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Medium healing mead",
+   "icon": "medium-healing-mead.webp",
+   "base": "Mead base: Medium healing",
+   "baseIcon": "mead-base-medium-healing.webp",
+   "effect": "75 health",
+   "kind": "health",
+   "group": "healing",
+   "duration": 10,
+   "cooldown": 120,
+   "biome": "Swamp",
+   "tier": 3,
+   "mats": [
+    [
+     "Honey",
+     10
+    ],
+    [
+     "Bloodbag",
+     4
+    ],
+    [
+     "Raspberries",
+     10
+    ],
+    [
+     "Dandelion",
+     1
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Major healing mead",
+   "icon": "major-healing-mead.webp",
+   "base": "Mead base: Major healing",
+   "baseIcon": "mead-base-major-healing.webp",
+   "effect": "125 health",
+   "kind": "health",
+   "group": "healing",
+   "duration": 10,
+   "cooldown": 120,
+   "biome": "Mistlands",
+   "tier": 7,
+   "mats": [
+    [
+     "Honey",
+     10
+    ],
+    [
+     "Blood clot",
+     4
+    ],
+    [
+     "Royal jelly",
+     5
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Lingering healing mead",
+   "icon": "lingering-healing-mead.webp",
+   "base": "Mead base: Lingering health",
+   "baseIcon": "mead-base-lingering-health.webp",
+   "effect": "+25% health regen",
+   "kind": "health",
+   "group": "healing",
+   "duration": 300,
+   "cooldown": 300,
+   "biome": "Ashlands",
+   "tier": 8,
+   "mats": [
+    [
+     "Sap",
+     10
+    ],
+    [
+     "Vineberry cluster",
+     10
+    ],
+    [
+     "Smoke puff",
+     10
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Minor stamina mead",
+   "icon": "minor-stamina-mead.webp",
+   "base": "Mead base: Minor stamina",
+   "baseIcon": "mead-base-minor-stamina.webp",
+   "effect": "80 stamina",
+   "kind": "stamina",
+   "group": "stamina",
+   "duration": 2,
+   "cooldown": 120,
+   "biome": "Black Forest",
+   "tier": 2,
+   "mats": [
+    [
+     "Honey",
+     10
+    ],
+    [
+     "Raspberries",
+     10
+    ],
+    [
+     "Yellow mushroom",
+     10
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Medium stamina mead",
+   "icon": "medium-stamina-mead.webp",
+   "base": "Mead base: Medium stamina",
+   "baseIcon": "mead-base-medium-stamina.webp",
+   "effect": "160 stamina",
+   "kind": "stamina",
+   "group": "stamina",
+   "duration": 2,
+   "cooldown": 120,
+   "biome": "Plains",
+   "tier": 6,
+   "mats": [
+    [
+     "Honey",
+     10
+    ],
+    [
+     "Cloudberries",
+     10
+    ],
+    [
+     "Yellow mushroom",
+     10
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Lingering stamina mead",
+   "icon": "lingering-stamina-mead.webp",
+   "base": "Mead base: Lingering stamina",
+   "baseIcon": "mead-base-lingering-stamina.webp",
+   "effect": "+25% stamina regen",
+   "kind": "stamina",
+   "group": "stamina",
+   "duration": 300,
+   "cooldown": 300,
+   "biome": "Mistlands",
+   "tier": 7,
+   "mats": [
+    [
+     "Sap",
+     10
+    ],
+    [
+     "Cloudberries",
+     10
+    ],
+    [
+     "Jotun puffs",
+     10
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Minor eitr mead",
+   "icon": "minor-eitr-mead.webp",
+   "base": "Mead base: Minor eitr",
+   "baseIcon": "mead-base-minor-eitr.webp",
+   "effect": "125 Eitr",
+   "kind": "eitr",
+   "group": "eitr",
+   "duration": 10,
+   "cooldown": 120,
+   "biome": "Mistlands",
+   "tier": 7,
+   "mats": [
+    [
+     "Honey",
+     10
+    ],
+    [
+     "Sap",
+     5
+    ],
+    [
+     "Jotun puffs",
+     2
+    ],
+    [
+     "Magecap",
+     5
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Lingering eitr mead",
+   "icon": "lingering-eitr-mead.webp",
+   "base": "Mead base: Lingering eitr",
+   "baseIcon": "mead-base-lingering-eitr.webp",
+   "effect": "+25% Eitr regen",
+   "kind": "eitr",
+   "group": "eitr",
+   "duration": 300,
+   "cooldown": 300,
+   "biome": "Ashlands",
+   "tier": 8,
+   "mats": [
+    [
+     "Sap",
+     10
+    ],
+    [
+     "Vineberry cluster",
+     10
+    ],
+    [
+     "Magecap",
+     10
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Poison resistance mead",
+   "icon": "poison-resistance-mead.webp",
+   "base": "Mead base: Poison resistance",
+   "baseIcon": "mead-base-poison-resistance.webp",
+   "effect": "Poison resistance",
+   "kind": "resistance",
+   "group": "",
+   "duration": 600,
+   "cooldown": 600,
+   "biome": "Black Forest",
+   "tier": 2,
+   "mats": [
+    [
+     "Honey",
+     10
+    ],
+    [
+     "Thistle",
+     5
+    ],
+    [
+     "Neck tail",
+     1
+    ],
+    [
+     "Coal",
+     10
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Tasty mead",
+   "icon": "tasty-mead.webp",
+   "base": "Mead base: Tasty",
+   "baseIcon": "mead-base-tasty.webp",
+   "effect": "-50% health regen / +100% stamina regen",
+   "kind": "stamina",
+   "group": "",
+   "duration": 10,
+   "cooldown": 10,
+   "biome": "Black Forest",
+   "tier": 2,
+   "mats": [
+    [
+     "Honey",
+     10
+    ],
+    [
+     "Raspberries",
+     10
+    ],
+    [
+     "Blueberries",
+     5
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Berserkir mead",
+   "icon": "berserkir-mead.webp",
+   "base": "Mead base: Berserkir",
+   "baseIcon": "mead-base-berserkir.webp",
+   "effect": "Attack, Block and Dodge Stamina use -80% / Weak (x1.5) against Slash, Blunt and Pierce damage",
+   "kind": "utility",
+   "group": "",
+   "duration": 20,
+   "cooldown": 120,
+   "biome": "Mountain",
+   "tier": 5,
+   "mats": [
+    [
+     "Mushroom",
+     10
+    ],
+    [
+     "Yellow mushroom",
+     10
+    ],
+    [
+     "Toadstool",
+     1
+    ]
+   ],
+   "yield": 3
+  },
+  {
+   "name": "Anti-sting concoction",
+   "icon": "anti-sting-concoction.webp",
+   "base": "Mead base: Anti-sting",
+   "baseIcon": "mead-base-anti-sting.webp",
+   "effect": "Prevent Deathsquito attacks",
+   "kind": "utility",
+   "group": "",
+   "duration": 600,
+   "cooldown": 0,
+   "biome": "Plains",
+   "tier": 6,
+   "mats": [
+    [
+     "Cloudberries",
+     10
+    ],
+    [
+     "Grouper",
+     3
+    ],
+    [
+     "Fragrant bundle",
+     1
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Draught of Vananidir",
+   "icon": "draught-of-vananidir.webp",
+   "base": "Mead base: Vananidir",
+   "baseIcon": "mead-base-vananidir.webp",
+   "effect": "-50% swimming stamina consumption",
+   "kind": "utility",
+   "group": "",
+   "duration": 300,
+   "cooldown": 0,
+   "biome": "Swamp",
+   "tier": 3,
+   "mats": [
+    [
+     "Dandelion",
+     10
+    ],
+    [
+     "Perch",
+     2
+    ],
+    [
+     "Fresh seaweed",
+     1
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Tonic of Ratatosk",
+   "icon": "tonic-of-ratatosk.webp",
+   "base": "Mead base: Ratatosk",
+   "baseIcon": "mead-base-ratatosk.webp",
+   "effect": "+15% walking and running speed / +7.5% swimming speed",
+   "kind": "utility",
+   "group": "",
+   "duration": 600,
+   "cooldown": 0,
+   "biome": "Swamp",
+   "tier": 3,
+   "mats": [
+    [
+     "Honey",
+     10
+    ],
+    [
+     "Blueberries",
+     10
+    ],
+    [
+     "Cured squirrel hamstring",
+     1
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Mead of Troll endurance",
+   "icon": "mead-of-troll-endurance.webp",
+   "base": "Mead base: Troll endurance",
+   "baseIcon": "mead-base-troll-endurance.webp",
+   "effect": "+250 carry weight",
+   "kind": "utility",
+   "group": "",
+   "duration": 300,
+   "cooldown": 120,
+   "biome": "Swamp",
+   "tier": 3,
+   "mats": [
+    [
+     "Trollfish",
+     2
+    ],
+    [
+     "Honey",
+     10
+    ],
+    [
+     "Powdered dragon eggshells",
+     1
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Brew of animal whispers",
+   "icon": "brew-of-animal-whispers.webp",
+   "base": "Mead base: Animal whispers",
+   "baseIcon": "mead-base-animal-whispers.webp",
+   "effect": "x2 Taming speed",
+   "kind": "utility",
+   "group": "",
+   "duration": 600,
+   "cooldown": 0,
+   "biome": "Mountain",
+   "tier": 5,
+   "mats": [
+    [
+     "Onion",
+     5
+    ],
+    [
+     "Carrot",
+     10
+    ],
+    [
+     "Pungent pebbles",
+     1
+    ]
+   ],
+   "yield": 6
+  },
+  {
+   "name": "Lightfoot mead",
+   "icon": "lightfoot-mead.webp",
+   "base": "Mead base: Lightfoot",
+   "baseIcon": "mead-base-lightfoot.webp",
+   "effect": "-30% jump stamina cost +20% jump height",
+   "kind": "utility",
+   "group": "",
+   "duration": 600,
+   "cooldown": 0,
+   "biome": "Mistlands",
+   "tier": 7,
+   "mats": [
+    [
+     "Scale hide",
+     2
+    ],
+    [
+     "Feathers",
+     5
+    ],
+    [
+     "Magecap",
+     5
+    ]
+   ],
+   "yield": 6
   }
  ]
 };

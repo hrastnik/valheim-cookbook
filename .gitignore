@@ -1,2 +1,3 @@
 .DS_Store
 scripts/.cache/
+__pycache__/

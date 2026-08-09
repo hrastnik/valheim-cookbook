@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
-<title>Valheim Cookbook — all food recipes, stats &amp; ingredients</title>
-<meta name="description" content="Search every Valheim food recipe by the ingredients you have. Filter by cooking station, cauldron level and biome, and compare health, stamina and eitr.">
+<title>Valheim Cookbook — every food &amp; mead recipe, stats &amp; ingredients</title>
+<meta name="description" content="Search every Valheim food and Mead ketill recipe by the ingredients you have. Filter by station, cauldron level, biome and mead effect, and compare health, stamina and eitr.">
 <link rel="canonical" href="https://valheim-cookbook.vercel.app/">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="color-scheme" content="dark">
@@ -16,21 +16,21 @@
      things that need changing (plus sitemap.xml and manifest.json). -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Valheim Cookbook">
-<meta property="og:title" content="Valheim Cookbook — all food recipes, stats &amp; ingredients">
-<meta property="og:description" content="Search every Valheim food recipe by the ingredients you have. Filter by cooking station, cauldron level and biome, and compare health, stamina and eitr.">
+<meta property="og:title" content="Valheim Cookbook — every food &amp; mead recipe, stats &amp; ingredients">
+<meta property="og:description" content="Search every Valheim food and Mead ketill recipe by the ingredients you have. Filter by station, cauldron level, biome and mead effect, and compare health, stamina and eitr.">
 <meta property="og:url" content="https://valheim-cookbook.vercel.app/">
 <meta property="og:image" content="https://valheim-cookbook.vercel.app/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="800">
-<meta property="og:image:alt" content="Valheim Cookbook — a dark recipe browser showing Valheim foods with their health, stamina and eitr values.">
+<meta property="og:image:alt" content="Valheim Cookbook — a dark recipe browser showing Valheim foods and meads with their health, stamina and eitr values.">
 <meta property="og:locale" content="en_US">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Valheim Cookbook — all food recipes, stats &amp; ingredients">
-<meta name="twitter:description" content="Search every Valheim food recipe by the ingredients you have. Filter by station, cauldron level and biome.">
+<meta name="twitter:title" content="Valheim Cookbook — every food &amp; mead recipe, stats &amp; ingredients">
+<meta name="twitter:description" content="Search every Valheim food and mead recipe by the ingredients you have. Filter by station, cauldron level, biome and effect.">
 <meta name="twitter:image" content="https://valheim-cookbook.vercel.app/og-image.jpg">
-<meta name="twitter:image:alt" content="Valheim Cookbook — a dark recipe browser showing Valheim foods with their health, stamina and eitr values.">
+<meta name="twitter:image:alt" content="Valheim Cookbook — a dark recipe browser showing Valheim foods and meads with their health, stamina and eitr values.">
 
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-96x96.png" sizes="96x96" type="image/png">
@@ -45,7 +45,7 @@
   "@type": "WebApplication",
   "name": "Valheim Cookbook",
   "url": "https://valheim-cookbook.vercel.app/",
-  "description": "Search every Valheim food recipe by the ingredients you have. Filter by cooking station, cauldron level and biome, and compare health, stamina and eitr.",
+  "description": "Search every Valheim food and Mead ketill recipe by the ingredients you have. Filter by station, cauldron level, biome and mead effect, and compare health, stamina and eitr.",
   "applicationCategory": "GameApplication",
   "operatingSystem": "Any modern web browser",
   "browserRequirements": "Requires JavaScript",
@@ -98,6 +98,13 @@
   --g-eitr:#57b6dd;
   --g-balanced:#ded0b2;
   --g-none:#6d6152;
+  /* Mead effect hues. Health/stamina/eitr deliberately reuse the food colours
+     above — a stamina mead and a stamina food are the same idea. */
+  --m-health:#e2593d;
+  --m-stamina:#e9b13a;
+  --m-eitr:#57b6dd;
+  --m-resistance:#8fb6c9;
+  --m-utility:#c9a05c;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:var(--ui)}
@@ -242,10 +249,34 @@ img.ico.lg{width:2.6rem;height:2.6rem}
 .pill:hover{border-color:var(--bronze);color:var(--parch)}
 .pill.on{background:rgba(201,160,92,.2);border-color:var(--bronze-lit);color:#ffeecd;
   box-shadow:0 0 12px -4px rgba(201,160,92,.5)}
-.pill.on[data-biome]{border-color:var(--bc);color:#fff}
+.pill.on[data-biome],.pill.on[data-kind]{border-color:var(--bc);color:#fff}
 
 /* ─────────────────────────────  main  ───────────────────────────── */
 main{display:flex;flex-direction:column;min-height:0;min-width:0}
+
+/* Food / Mead are two different crafting worlds — different stations, different
+   stats, no shared recipes — so they get tabs rather than a filter. The
+   inventory underneath them is shared, which is the whole point. */
+.tabs{
+  display:flex;gap:.35rem;flex:none;padding:.5rem 1.15rem 0;
+  border-bottom:1px solid var(--bronze-dim);background:rgba(12,10,8,.82);
+}
+.tab{
+  position:relative;top:1px;display:flex;align-items:baseline;gap:.4rem;cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,232,192,.04),transparent);
+  border:1px solid var(--bronze-dim);border-radius:var(--r) var(--r) 0 0;
+  color:var(--muted);font-family:var(--fw);font-size:1.02rem;font-weight:600;
+  letter-spacing:.05em;padding:.34rem .95rem;
+}
+.tab:hover{color:var(--parch);border-color:var(--bronze)}
+.tab .tn{font-family:var(--fb);font-size:.72rem;font-weight:400;letter-spacing:.06em;color:var(--faint)}
+.tab.on{
+  color:#ffeecd;border-color:var(--bronze-lit);border-bottom-color:transparent;
+  background:linear-gradient(180deg,rgba(201,160,92,.24),rgba(201,160,92,.04));
+  box-shadow:0 -7px 16px -10px rgba(201,160,92,.9);
+}
+.tab.on .tn{color:var(--gold)}
+
 .bar{
   display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;flex:none;
   padding:.6rem 1.15rem;border-bottom:1px solid var(--bronze-dim);background:rgba(12,10,8,.82);
@@ -309,10 +340,12 @@ body.has-inv .card.short:hover{opacity:1}
 @supports (color: color-mix(in srgb, red, blue)){
   .tag.biome{border-color:color-mix(in srgb,var(--bc) 55%,transparent);
     background:color-mix(in srgb,var(--bc) 13%,transparent)}
-  .pill.on[data-biome]{background:color-mix(in srgb,var(--bc) 24%,transparent)}
+  .pill.on[data-biome],.pill.on[data-kind]{background:color-mix(in srgb,var(--bc) 24%,transparent)}
   .tag.group{border-color:color-mix(in srgb,var(--gc) 55%,transparent);
     background:color-mix(in srgb,var(--gc) 13%,transparent)}
   .card::before{background:linear-gradient(180deg,var(--gc),color-mix(in srgb,var(--gc) 35%,#000))}
+  .effect{border-color:color-mix(in srgb,var(--gc) 40%,transparent);
+    background:color-mix(in srgb,var(--gc) 10%,transparent)}
 }
 
 .bars{display:flex;gap:.35rem;margin-top:.55rem}
@@ -350,6 +383,36 @@ body.has-inv .card.short:hover{opacity:1}
   border-top:1px solid rgba(123,95,54,.35);font-size:.78rem;color:var(--muted);flex-wrap:wrap}
 .cfoot .k{color:var(--faint);letter-spacing:.07em;text-transform:uppercase;font-size:.67rem}
 .cfoot b{color:var(--parch);font-weight:600}
+
+/* ─────────────────────────────  mead card  ─────────────────────────────
+   Shares .card, .tags, .mats and .cfoot with food; --gc carries the effect
+   colour where a food card carries its fork colour. */
+.card.mead{background:linear-gradient(180deg,rgba(38,29,17,.9),rgba(15,12,9,.92))}
+.effect{
+  display:flex;align-items:flex-start;gap:.42rem;margin-top:.55rem;
+  padding:.34rem .5rem;border-radius:2px;line-height:1.3;
+  border:1px solid rgba(123,95,54,.55);background:rgba(255,232,192,.05);
+  font-size:.92rem;color:#f4e8ce;
+}
+.effect svg{width:.85rem;height:.85rem;fill:var(--gc);flex:none;margin-top:.16rem}
+
+/* The two-stage craft is what makes mead mead: brew a base at the ketill, then
+   ferment it. Spelling both steps out saves a trip to the wiki. */
+.chain{
+  list-style:none;margin-top:.5rem;padding-top:.45rem;
+  border-top:1px solid rgba(123,95,54,.35);display:flex;flex-direction:column;gap:.32rem;
+}
+.chain li{display:flex;align-items:center;gap:.45rem;position:relative}
+.chain li+li::before{content:'';position:absolute;left:.52rem;top:-.32rem;
+  width:1px;height:.32rem;background:var(--bronze-dim)}
+.chain .step{
+  width:1.06rem;height:1.06rem;flex:none;border-radius:100px;background:#0a0806;
+  border:1px solid var(--bronze);color:var(--bronze-lit);
+  font-size:.65rem;line-height:.95rem;text-align:center}
+.chain .ct{flex:1;min-width:0}
+.chain .cn{display:block;font-size:.85rem;color:var(--parch);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chain .cs{display:block;font-size:.69rem;letter-spacing:.05em;color:var(--faint)}
 
 .blank{grid-column:1/-1;text-align:center;padding:3.5rem 1.2rem;color:var(--faint)}
 .blank h3{font-family:var(--fw);font-size:1.6rem;color:var(--bronze);letter-spacing:.08em;margin-bottom:.5rem}
@@ -425,9 +488,12 @@ button:focus-visible,.pill:focus-visible,[tabindex]:focus-visible{
   /* Natural width here — there's room for the selects, dir and count on one
      row. Only the ≤560 block forces a percentage split. */
   #avail{order:5;flex:0 1 auto;min-width:0}
-  #sort{order:6;flex:0 1 auto;min-width:0}
+  #sort,#msort{order:6;flex:0 1 auto;min-width:0}
   #dir{order:7}
   .count{order:8;margin-left:auto;text-align:right}
+
+  .tabs{padding:.4rem .7rem 0;gap:.3rem}
+  .tab{flex:1;justify-content:center;font-size:.98rem;padding:.3rem .6rem}
 
   .scroll{padding:.7rem .7rem 3rem;
     padding-left:max(.7rem,env(safe-area-inset-left));
@@ -466,7 +532,7 @@ button:focus-visible,.pill:focus-visible,[tabindex]:focus-visible{
   .count{order:2;margin-left:auto;white-space:nowrap}
   #q{order:3;flex:1 1 100%}
   #avail{order:5;flex:1 1 46%}
-  #sort{order:6;flex:1 1 28%}
+  #sort,#msort{order:6;flex:1 1 28%}
   #dir{order:7}
   /* Claw back some vertical space per card */
   .card{padding:.5rem .6rem .5rem .72rem}
@@ -487,11 +553,13 @@ button:focus-visible,.pill:focus-visible,[tabindex]:focus-visible{
 <noscript>
   <div style="max-width:44rem;margin:3rem auto;padding:0 1.5rem;font-family:Georgia,serif;color:#ece0c8">
     <p style="color:#e8c07a;font-size:2rem;font-weight:700">Valheim Cookbook</p>
-    <p style="margin-top:1rem;line-height:1.6">This tool filters 60 Valheim food recipes against the
-    ingredients you have, so it needs JavaScript enabled. Everything runs in your browser — no server,
-    no tracking.</p>
+    <p style="margin-top:1rem;line-height:1.6">This tool filters 60 Valheim food recipes and 20 Mead
+    ketill recipes against the ingredients you have, so it needs JavaScript enabled. Everything runs
+    in your browser — no server, no tracking.</p>
     <p style="margin-top:1rem;line-height:1.6">The underlying data comes from the
-    <a href="https://valheim.fandom.com/wiki/Food" style="color:#c9a05c">Valheim wiki</a>.</p>
+    <a href="https://valheim.fandom.com/wiki/Food" style="color:#c9a05c">Valheim wiki</a> —
+    the <a href="https://valheim.fandom.com/wiki/Food" style="color:#c9a05c">Food</a> and
+    <a href="https://valheim.fandom.com/wiki/Mead" style="color:#c9a05c">Mead</a> pages.</p>
   </div>
 </noscript>
 <div id="app">
@@ -519,13 +587,20 @@ button:focus-visible,.pill:focus-visible,[tabindex]:focus-visible{
       <div class="block">
         <h2>Stations <span class="n" id="stnCount"></span></h2>
         <div class="stn" id="stations"></div>
-        <div class="hint">Untick a station to hide everything it makes. Cauldron level rises with
-          Spice rack (2), Butcher's table (3), Pots &amp; pans (4), Mortar &amp; pestle (5), Rolling pins (6).</div>
+        <div class="hint" id="stnHint"></div>
+      </div>
+
+      <div class="block" id="blkEffect" hidden>
+        <h2>Effect</h2>
+        <div class="pills" id="fKind"></div>
+        <div class="hint">Healing, stamina and eitr meads each share a cooldown group — drinking
+          one locks out the others in its group until it wears off.</div>
       </div>
 
       <div class="block">
         <h2>Biome</h2>
         <div class="pills" id="fBiome"></div>
+        <div class="hint" id="biomeHint"></div>
         <div class="hint" style="margin-top:.7rem"><button class="linkish" id="reset">Reset everything</button></div>
       </div>
 
@@ -533,6 +608,12 @@ button:focus-visible,.pill:focus-visible,[tabindex]:focus-visible{
   </aside>
 
   <main>
+    <div class="tabs" role="tablist" aria-label="Recipe kind">
+      <button class="tab" role="tab" data-mode="food" id="tabFood" aria-selected="true">
+        Food <span class="tn" id="tabFoodN"></span></button>
+      <button class="tab" role="tab" data-mode="mead" id="tabMead" aria-selected="false">
+        Mead <span class="tn" id="tabMeadN"></span></button>
+    </div>
     <div class="bar">
       <button class="drawer-toggle" id="drawerToggle" aria-controls="sidebar" aria-expanded="false">
         <span class="ham" aria-hidden="true"></span>Filters<span class="fbadge" id="fbadge" hidden></span>
@@ -546,7 +627,7 @@ button:focus-visible,.pill:focus-visible,[tabindex]:focus-visible{
         <option value="close">Missing 1–2 things</option>
         <option value="all">Everything</option>
       </select>
-      <label for="sort">Sort</label>
+      <label for="sort" id="sortLabel">Sort</label>
       <select id="sort">
         <option value="total">Total buff</option>
         <option value="hp">Health</option>
@@ -556,6 +637,14 @@ button:focus-visible,.pill:focus-visible,[tabindex]:focus-visible{
         <option value="duration">Duration</option>
         <option value="tier">Biome tier</option>
         <option value="max">How many I can cook</option>
+        <option value="name">Name</option>
+      </select>
+      <select id="msort" hidden aria-label="Sort meads">
+        <option value="kind">Effect type</option>
+        <option value="tier">Biome tier</option>
+        <option value="duration">Duration</option>
+        <option value="cooldown">Cooldown</option>
+        <option value="max">How many I can brew</option>
         <option value="name">Name</option>
       </select>
       <span class="pill" id="dir" title="Toggle direction">▼ desc</span>
@@ -578,10 +667,15 @@ const D = window.VALHEIM;
 const BIOMES = D.biomeOrder;
 const RECIPES = D.recipes;
 const ITEMS = D.items;
+const MEADS = D.meads;
+const FERMENT = D.fermentTime;
 
 const recipeMap = Object.fromEntries(RECIPES.map(r => [r.name, r]));
 const itemMap   = Object.fromEntries(ITEMS.map(i => [i.name, i]));
-const info = name => recipeMap[name] || itemMap[name] || {name, icon:''};
+// Meads are deliberately *not* in recipeMap: nothing is cooked from a mead, so
+// letting the chain resolver see them would only slow it down.
+const meadMap   = Object.fromEntries(MEADS.map(m => [m.name, m]));
+const info = name => recipeMap[name] || itemMap[name] || meadMap[name] || {name, icon:''};
 const MAXV = {
   hp: Math.max(...RECIPES.map(r => r.hp)),
   stam: Math.max(...RECIPES.map(r => r.stam)),
@@ -613,20 +707,47 @@ const SHORT_STATION = {
   'Food preparation table': 'Prep table',
   'Food prep table + Stone oven': 'Prep table + Oven',
 };
+// Both are required — the ketill brews the base, the fermenter turns it into
+// mead — so unticking either empties the list.
+const MEAD_STATIONS = [
+  {key:'ketill',  label:'Mead ketill', build:'Tin ×4, Copper ×6, Leather scraps ×2'},
+  {key:'ferment', label:'Fermenter',   build:'Finewood ×30, Bronze ×5, Resin ×10'},
+];
+const MEAD_KINDS = [
+  {key:'health',     label:'Health'},
+  {key:'stamina',    label:'Stamina'},
+  {key:'eitr',       label:'Eitr'},
+  {key:'resistance', label:'Resistance'},
+  {key:'utility',    label:'Utility'},
+];
+const KIND_ORDER = MEAD_KINDS.map(k => k.key);
+const DROP_SVG = `<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">`
+  + `<path d="M8 .8c2.6 3.4 5 6.4 5 9.1A5 5 0 0 1 3 9.9C3 7.2 5.4 4.2 8 .8z"/></svg>`;
 const UI_MIN = 14, UI_MAX = 24;
 
 /* ───────── state ───────── */
+// Food and mead keep separate sort settings — the two option lists barely
+// overlap, so carrying one across would land on a key the other doesn't have.
 const DEFAULTS = () => ({
-  inv:{}, st:{cook:true,iron:true,prep:true,oven:true,mill:true,cauldron:6},
+  inv:{}, st:{cook:true,iron:true,prep:true,oven:true,mill:true,cauldron:6,
+              ketill:true,ferment:true},
   q:'', avail:'uses', sort:'total', dir:-1, biomes:[], ui:17,
+  mode:'food', msort:'kind', mdir:1, kinds:[],
 });
 let S = DEFAULTS();
 const KEY = 'valheim-cookbook-v3';
 try {
   const raw = localStorage.getItem(KEY);
-  if (raw) S = Object.assign(DEFAULTS(), JSON.parse(raw));
+  if (raw) {
+    S = Object.assign(DEFAULTS(), JSON.parse(raw));
+    // st is a nested object, so the assign above replaces it wholesale — a
+    // v3 save predates the mead stations and would leave them undefined.
+    S.st = Object.assign(DEFAULTS().st, S.st);
+  }
 } catch(e){}
+if (location.hash === '#mead' || location.hash === '#food') S.mode = location.hash.slice(1);
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
+const isMead = () => S.mode === 'mead';
 
 /* ───────── crafting maths ───────── */
 function stationOK(r){
@@ -738,13 +859,54 @@ function visible(){
   });
 }
 
+// Meads have no sub-recipes, so evaluate() resolves them against the inventory
+// directly — the same have/need maths food uses, minus the chain.
+const meadStationOK = () => S.st.ketill && S.st.ferment;
+function visibleMeads(){
+  const q = S.q.trim().toLowerCase();
+  const invNames = Object.keys(S.inv).filter(n => S.inv[n] > 0);
+  if (!meadStationOK()) return [];
+  return MEADS.filter(m => {
+    if (S.kinds.length && !S.kinds.includes(m.kind)) return false;
+    if (S.biomes.length && !S.biomes.includes(m.biome)) return false;
+    if (q) {
+      // Effect text is searchable too, so "poison" and "carry" both land.
+      const hay = [m.name, m.effect, m.base, ...m.mats.map(([n]) => n)].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }).map(m => ({r:m, e:evaluate(m)})).filter(({r, e}) => {
+    switch (S.avail) {
+      case 'uses':  return !invNames.length || invNames.some(n => ingredientTree(r).has(n));
+      case 'cook':  return e.cookable;
+      case 'close': return e.nMissingKinds > 0 && e.nMissingKinds <= 2;
+      default: return true;
+    }
+  });
+}
+
 const SORTV = {
   total: x => x.r.hp + x.r.stam + x.r.eitr,
   hp: x => x.r.hp, stam: x => x.r.stam, eitr: x => x.r.eitr,
   heal: x => x.r.heal, duration: x => x.r.duration, tier: x => x.r.tier,
   max: x => x.e.canCook, name: x => x.r.name,
 };
+const MSORTV = {
+  kind: x => KIND_ORDER.indexOf(x.r.kind),
+  tier: x => x.r.tier, duration: x => x.r.duration, cooldown: x => x.r.cooldown,
+  max: x => x.e.canCook, name: x => x.r.name,
+};
 function sorted(list){
+  if (isMead()) {
+    const f = MSORTV[S.msort] || MSORTV.kind;
+    // Ties break by tier, so an "effect type" sort reads minor → major within
+    // each group rather than alphabetically.
+    return list.sort((a,b) => {
+      const va = f(a), vb = f(b);
+      if (va !== vb) return typeof va === 'string' ? S.mdir * va.localeCompare(vb) : S.mdir * (va - vb);
+      return a.r.tier - b.r.tier || a.r.name.localeCompare(b.r.name);
+    });
+  }
   const f = SORTV[S.sort] || SORTV.total;
   return list.sort((a,b) => {
     const va = f(a), vb = f(b);
@@ -754,22 +916,39 @@ function sorted(list){
 }
 
 /* ───────── helpers ───────── */
-const ic = (name, cls='') => {
-  const i = info(name);
-  return i.icon ? `<img class="ico ${cls}" src="icons/${i.icon}" alt="" loading="lazy">`
-                : `<span class="ico ${cls}"></span>`;
-};
+// Mead bases aren't items in their own right, so they're addressed by filename.
+const icoFile = (file, cls='') => file
+  ? `<img class="ico ${cls}" src="icons/${file}" alt="" loading="lazy">`
+  : `<span class="ico ${cls}"></span>`;
+const ic = (name, cls='') => icoFile(info(name).icon, cls);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const mins = s => { if (!s) return '—'; const m = Math.floor(s/60), x = s%60; return x ? `${m}m ${x}s` : `${m}m`; };
+// Sub-minute cases only turn up on meads — a stamina mead lasts two seconds.
+const mins = s => {
+  if (!s) return '—';
+  const m = Math.floor(s/60), x = s%60;
+  if (!m) return `${x}s`;
+  return x ? `${m}m ${x}s` : `${m}m`;
+};
 const stationLabel = r => r.station === 'Cauldron'
   ? `Cauldron lv ${r.level}`
   : (SHORT_STATION[r.station] || r.station);
 
 /* ───────── sidebar: inventory ───────── */
-const ADDABLE = [
-  ...ITEMS.map(i => ({name:i.name, kind:i.cat, biome:i.biome, tier:i.tier})),
-  ...RECIPES.filter(r => !r.feast).map(r => ({name:r.name, kind:'cooked', biome:r.biome, tier:r.tier})),
-].sort((a,b) => a.tier - b.tier || a.name.localeCompare(b.name));
+// One inventory serves both tabs, but the picker is scoped to the tab you're on:
+// offering Powdered dragon eggshells while you're browsing pies is just noise.
+const byTier = (a,b) => a.tier - b.tier || a.name.localeCompare(b.name);
+const MEAD_MATS = new Set(MEADS.flatMap(m => m.mats.map(([n]) => n)));
+const FOOD_MATS = new Set(RECIPES.flatMap(r => r.mats.map(([n]) => n)));
+const ADDABLE = {
+  food: [
+    ...ITEMS.filter(i => FOOD_MATS.has(i.name) || i.edible)
+            .map(i => ({name:i.name, kind:i.cat, biome:i.biome, tier:i.tier})),
+    ...RECIPES.filter(r => !r.feast)
+              .map(r => ({name:r.name, kind:'cooked', biome:r.biome, tier:r.tier})),
+  ].sort(byTier),
+  mead: ITEMS.filter(i => MEAD_MATS.has(i.name))
+             .map(i => ({name:i.name, kind:i.cat, biome:i.biome, tier:i.tier})).sort(byTier),
+};
 
 function renderInv(){
   const names = Object.keys(S.inv).filter(n => S.inv[n] > 0)
@@ -788,14 +967,19 @@ function renderInv(){
         </span>
         <button class="kill" aria-label="remove">×</button>
       </div>`).join('')
-    : `<div class="empty">Empty — showing every recipe. Add something and the list narrows to
-       recipes that use it, counting ingredients you'd cook along the way.</div>`;
+    : isMead()
+      ? `<div class="empty">Empty — showing every mead. Add what you're carrying and the list
+         narrows to the ones you could brew with it.</div>`
+      : `<div class="empty">Empty — showing every recipe. Add something and the list narrows to
+         recipes that use it, counting ingredients you'd cook along the way.</div>`;
   document.getElementById('invHint').innerHTML =
     names.length ? `<button class="linkish" id="clearInv">Clear inventory</button>` : '';
 }
 
 /* ───────── sidebar: stations ───────── */
 function renderStations(){
+  if (isMead()) return renderMeadStations();
+
   // Static totals so the numbers don't jump as you toggle. Counts everything a
   // station makes, intermediates included — otherwise the Windmill reads 0 when
   // its whole job is turning Barley into flour.
@@ -818,6 +1002,21 @@ function renderStations(){
   const foods = RECIPES.filter(r => !r.intermediate);
   document.getElementById('stnCount').textContent =
     `${foods.filter(stationOK).length} of ${foods.length} recipes`;
+  document.getElementById('stnHint').innerHTML =
+    `Untick a station to hide everything it makes. Cauldron level rises with
+     Spice rack (2), Butcher's table (3), Pots &amp; pans (4), Mortar &amp; pestle (5),
+     Rolling pins (6).`;
+}
+function renderMeadStations(){
+  // Every mead needs both, so each row's count is the whole list.
+  document.getElementById('stations').innerHTML =
+    MEAD_STATIONS.map(s => srow(s, MEADS.length)).join('');
+  document.getElementById('stnCount').textContent =
+    `${meadStationOK() ? MEADS.length : 0} of ${MEADS.length} recipes`;
+  document.getElementById('stnHint').innerHTML =
+    `Every mead needs both. The ketill wants a fire under it — a campfire or hearth —
+     and has no upgrade levels.<br>
+     ${MEAD_STATIONS.map(s => `<b>${esc(s.label)}</b> — ${esc(s.build)}`).join('<br>')}`;
 }
 function srow(s, n){
   return `<div class="srow ${S.st[s.key]?'on':'off'}" data-stn="${s.key}">
@@ -829,22 +1028,44 @@ function renderBiomes(){
   document.getElementById('fBiome').innerHTML = BIOMES.map(b =>
     `<span class="pill ${S.biomes.includes(b)?'on':''}" data-biome="${esc(b)}"
        style="--bc:var(--b-${slug(b)})">${esc(b)}</span>`).join('');
+  document.getElementById('biomeHint').innerHTML = isMead()
+    ? 'A mead is filed under its rarest ingredient — the biome that actually gates it.'
+    : '';
+  document.getElementById('blkEffect').hidden = !isMead();
+  if (isMead()) {
+    const tally = k => MEADS.filter(m => m.kind === k).length;
+    document.getElementById('fKind').innerHTML = MEAD_KINDS.map(k =>
+      `<span class="pill ${S.kinds.includes(k.key)?'on':''}" data-kind="${k.key}"
+         style="--bc:var(--m-${k.key})">${esc(k.label)} ${tally(k.key)}</span>`).join('');
+  }
 }
 
 /* ───────── grid ───────── */
 function renderGrid(){
   treeCache = new Map();                     // station state can change the tree
-  const list = sorted(visible());
-  const summary = `<b>${list.length}</b> recipe${list.length===1?'':'s'} · <b>${list.filter(x=>x.e.cookable).length}</b> cookable`;
+  const mead = isMead();
+  const list = sorted(mead ? visibleMeads() : visible());
+  const noun = (mead ? 'mead' : 'recipe') + (list.length === 1 ? '' : 's');
+  const summary = `<b>${list.length}</b> ${noun} · `
+    + `<b>${list.filter(x=>x.e.cookable).length}</b> ${mead ? 'brewable' : 'cookable'}`;
   document.getElementById('count').innerHTML = summary;
   // Mirrored inside the drawer so the number visibly moves as you tick
   // filters on mobile, where the toolbar is hidden behind the overlay.
   document.getElementById('drawerCount').innerHTML = summary;
   const grid = document.getElementById('grid');
   grid.innerHTML = (list.length
-    ? list.map((x,i) => card(x,i)).join('')
-    : `<div class="blank"><h3>Nothing matches</h3><p>Loosen a filter, or add more to your inventory.</p></div>`
+    ? list.map((x,i) => (mead ? meadCard(x,i) : card(x,i))).join('')
+    : blank(mead)
   ) + footer();
+}
+
+function blank(mead){
+  if (mead && !meadStationOK())
+    return `<div class="blank"><h3>No brewing station</h3>
+      <p>Tick both the Mead ketill and the Fermenter under Stations — a mead needs
+      the ketill for its base and the fermenter to finish it.</p></div>`;
+  return `<div class="blank"><h3>Nothing matches</h3>
+    <p>Loosen a filter, or add more to your inventory.</p></div>`;
 }
 
 function bar(kind, label, v, max){
@@ -864,20 +1085,8 @@ function card({r, e}, idx){
   : `<span class="badge no" title="${kinds} different raw ingredient${s} still missing — see the raw list below">${
       kinds} kind${s} short</span>`;
 
-  const mats = r.mats.map(([name, need]) => {
-    const have = S.inv[name] || 0, ok = have >= need;
-    // an ingredient you can't hold but could cook enough of from what you have
-    const sub = recipeMap[name];
-    const canMake = !ok && sub && stationOK(sub) && canProduce(name, need, S.inv);
-    return `<div class="mat ${ok?'ok':'no'}">
-      ${ic(name,'sm')}
-      <span class="nm" title="${esc(name)}">${esc(name)}</span>
-      ${canMake ? `<span class="sub have">can cook</span>`
-                : (!ok && sub ? `<span class="sub">cookable</span>` : '')}
-      <span class="q"><b>${have}</b>/${need}</span>
-      <span class="st">${ok?'✓':(canMake?'↻':'✕')}</span>
-    </div>`;
-  }).join('');
+  // Rows flag an ingredient you can't hold but could cook enough of.
+  const mats = matRows(r);
 
   // Only worth listing the raw shortfall when sub-recipes expanded into
   // something different from the direct ingredients above.
@@ -923,7 +1132,80 @@ function card({r, e}, idx){
   </article>`;
 }
 
+// Shared by both cards: the have/need ingredient rows.
+function matRows(r){
+  return r.mats.map(([name, need]) => {
+    const have = S.inv[name] || 0, ok = have >= need;
+    const sub = recipeMap[name];
+    const canMake = !ok && sub && stationOK(sub) && canProduce(name, need, S.inv);
+    return `<div class="mat ${ok?'ok':'no'}">
+      ${ic(name,'sm')}
+      <span class="nm" title="${esc(name)}">${esc(name)}</span>
+      ${canMake ? `<span class="sub have">can cook</span>`
+                : (!ok && sub ? `<span class="sub">cookable</span>` : '')}
+      <span class="q"><b>${have}</b>/${need}</span>
+      <span class="st">${ok?'✓':(canMake?'↻':'✕')}</span>
+    </div>`;
+  }).join('');
+}
+
+function meadCard({r, e}, idx){
+  const kinds = e.nMissingKinds, s = kinds > 1 ? 's' : '';
+  const badge =
+    e.cookable ? `<span class="badge can">✓ brew now${e.canCook>1?` ×${e.canCook}`:''}</span>`
+    : `<span class="badge no" title="${kinds} different ingredient${s} still missing">${
+        kinds} kind${s} short</span>`;
+
+  // No "raw" list here, unlike a food card: nothing in a mead is itself cooked,
+  // so the shortfall is always just the unticked rows above restated.
+  const kind = MEAD_KINDS.find(k => k.key === r.kind);
+  return `<article class="card mead ${e.status==='short'?'short':'now'}"
+      style="--bc:var(--b-${slug(r.biome)});--gc:var(--m-${r.kind});animation-delay:${
+        Math.min(idx,16)*10}ms">
+    <div class="ctop">
+      ${icoFile(r.icon,'lg')}
+      <div class="ctitle">
+        <h3>${esc(r.name)}</h3>
+        <div class="tags">
+          <span class="tag group">${DROP_SVG}${esc(kind ? kind.label.toLowerCase() : r.kind)}</span>
+          <span class="tag biome">${esc(r.biome)}</span>
+        </div>
+      </div>
+      ${badge}
+    </div>
+    <div class="effect">${DROP_SVG}<span>${esc(r.effect)}</span></div>
+    <div class="mats">${matRows(r)}</div>
+    <ol class="chain">
+      <li><span class="step">1</span>${icoFile(r.baseIcon,'sm')}
+        <span class="ct"><span class="cn" title="${esc(r.base)}">${esc(r.base)}</span>
+        <span class="cs">brew at the Mead ketill</span></span></li>
+      <li><span class="step">2</span>${icoFile(r.icon,'sm')}
+        <span class="ct"><span class="cn">${r.yield} × ${esc(r.name)}</span>
+        <span class="cs">ferment · ${esc(FERMENT)}</span></span></li>
+    </ol>
+    <div class="cfoot">
+      <span class="k">lasts</span><b>${mins(r.duration)}</b>
+      <span class="k">cooldown</span><b>${r.cooldown ? mins(r.cooldown) : 'none'}</b>
+      ${r.group ? `<span class="k">group</span><b title="Shares a cooldown with every other ${
+          esc(r.group)} mead">${esc(r.group)}</b>` : ''}
+    </div>
+  </article>`;
+}
+
 function footer(){
+  if (isMead()) return `<div class="foot">
+    Data scraped from the Valheim wiki —
+    <a href="https://valheim.fandom.com/wiki/Mead" target="_blank" rel="noopener">Mead</a>,
+    <a href="https://valheim.fandom.com/wiki/Mead_Ketill" target="_blank" rel="noopener">Mead Ketill</a>
+    and <a href="https://valheim.fandom.com/wiki/Fermenter" target="_blank" rel="noopener">Fermenter</a>
+    pages. Icons © Iron Gate Studio.<br>
+    A fermenter needs a roof and 70% cover to run, and one cycle takes ${esc(FERMENT)} —
+    it holds a single base at a time, so queue the long ones first. Destroying a fermenter
+    mid-cycle loses the base. The four Bog Witch reagents and Toadstool are the only
+    mead ingredients you can't gather yourself.<br>
+    <a href="https://valheim.fandom.com/wiki/Love_potion" target="_blank" rel="noopener">Love potion</a>
+    isn't here: it's bought ready-made from The Bog Witch and has no ketill recipe.
+  </div>`;
   return `<div class="foot">
     Data scraped from the <a href="https://valheim.fandom.com/wiki/Food" target="_blank" rel="noopener">Valheim wiki</a>
     — <a href="https://valheim.fandom.com/wiki/Cauldron" target="_blank" rel="noopener">Cauldron</a>,
@@ -941,22 +1223,52 @@ function renderAll(){
   renderInv(); renderStations(); renderBiomes(); renderControls(); renderGrid(); save();
 }
 function renderControls(){
+  const mead = isMead();
   document.getElementById('q').value = S.q;
+  document.getElementById('q').placeholder = mead ? 'Search meads…' : 'Search recipes…';
   document.getElementById('avail').value = S.avail;
+  // Only the verb differs; the filter itself means the same thing on both tabs.
+  document.querySelector('#avail option[value=cook]').textContent =
+    mead ? 'Can brew' : 'Can cook';
+  document.getElementById('sort').hidden = mead;
+  document.getElementById('msort').hidden = !mead;
+  document.getElementById('sortLabel').htmlFor = mead ? 'msort' : 'sort';
   document.getElementById('sort').value = S.sort;
-  document.getElementById('dir').textContent = S.dir === -1 ? '▼ desc' : '▲ asc';
+  document.getElementById('msort').value = S.msort;
+  const dir = mead ? S.mdir : S.dir;
+  document.getElementById('dir').textContent = dir === -1 ? '▼ desc' : '▲ asc';
   document.getElementById('zoomOut').disabled = S.ui <= UI_MIN;
   document.getElementById('zoomIn').disabled = S.ui >= UI_MAX;
+
+  for (const t of document.querySelectorAll('.tab')) {
+    const on = t.dataset.mode === S.mode;
+    t.classList.toggle('on', on);
+    t.setAttribute('aria-selected', String(on));
+  }
+  document.getElementById('tabFoodN').textContent = RECIPES.filter(r => !r.intermediate).length;
+  document.getElementById('tabMeadN').textContent = MEADS.length;
 
   // With the drawer closed on mobile, this badge is the only clue that
   // filters are narrowing the list.
   const d = DEFAULTS().st;
-  const stationsChanged = Object.keys(d).some(k => S.st[k] !== d[k]);
+  const keys = mead ? ['ketill','ferment']
+                    : ['cook','iron','prep','oven','mill','cauldron'];
+  const stationsChanged = keys.some(k => S.st[k] !== d[k]);
   const n = Object.values(S.inv).filter(v => v > 0).length
-          + S.biomes.length + (stationsChanged ? 1 : 0);
+          + S.biomes.length + (mead ? S.kinds.length : 0) + (stationsChanged ? 1 : 0);
   const badge = document.getElementById('fbadge');
   badge.textContent = n;
   badge.hidden = n === 0;
+}
+
+function setMode(mode){
+  if (S.mode === mode) return;
+  S.mode = mode;
+  // replaceState, not pushState: the URL stays shareable without every tab
+  // click piling up a history entry to back out of.
+  try { history.replaceState(null, '', '#' + mode); } catch(e){ location.hash = mode; }
+  document.querySelector('.scroll').scrollTop = 0;
+  renderAll();
 }
 
 /* ───────── events ───────── */
@@ -975,11 +1287,12 @@ function matchRank(name, q){
 }
 function showSugg(){
   const q = searchEl.value.trim().toLowerCase();
+  const pool = ADDABLE[S.mode];
   suggList = (q
-    ? ADDABLE.map(a => ({a, r: matchRank(a.name, q)})).filter(x => x.r < 99)
+    ? pool.map(a => ({a, r: matchRank(a.name, q)})).filter(x => x.r < 99)
         .sort((x,y) => x.r - y.r || x.a.tier - y.a.tier || x.a.name.localeCompare(y.a.name))
         .map(x => x.a)
-    : ADDABLE).slice(0, 60);
+    : pool).slice(0, 60);
   suggIdx = 0;
   if (!suggList.length) { suggEl.classList.remove('on'); return; }
   suggEl.innerHTML = suggList.map((a,i) =>
@@ -1050,6 +1363,22 @@ $('#fBiome').addEventListener('click', ev => {
   renderAll();
 });
 
+$('#fKind').addEventListener('click', ev => {
+  const p = ev.target.closest('[data-kind]'); if (!p) return;
+  const k = p.dataset.kind, i = S.kinds.indexOf(k);
+  i < 0 ? S.kinds.push(k) : S.kinds.splice(i,1);
+  renderAll();
+});
+
+document.querySelector('.tabs').addEventListener('click', ev => {
+  const t = ev.target.closest('[data-mode]');
+  if (t) setMode(t.dataset.mode);
+});
+addEventListener('hashchange', () => {
+  const h = location.hash.slice(1);
+  if (h === 'food' || h === 'mead') setMode(h);
+});
+
 let qt;
 $('#q').addEventListener('input', e => {
   S.q = e.target.value; clearTimeout(qt);
@@ -1057,8 +1386,15 @@ $('#q').addEventListener('input', e => {
 });
 $('#avail').addEventListener('change', e => { S.avail = e.target.value; renderGrid(); save(); });
 $('#sort').addEventListener('change', e => { S.sort = e.target.value; renderGrid(); save(); });
-$('#dir').addEventListener('click', () => { S.dir = -S.dir; renderControls(); renderGrid(); save(); });
-$('#reset').addEventListener('click', () => { const ui = S.ui; S = DEFAULTS(); S.ui = ui; renderAll(); });
+$('#msort').addEventListener('change', e => { S.msort = e.target.value; renderGrid(); save(); });
+$('#dir').addEventListener('click', () => {
+  if (isMead()) S.mdir = -S.mdir; else S.dir = -S.dir;
+  renderControls(); renderGrid(); save();
+});
+// Keeps you on the tab you're looking at — resetting shouldn't move you.
+$('#reset').addEventListener('click', () => {
+  const {ui, mode} = S; S = DEFAULTS(); S.ui = ui; S.mode = mode; renderAll();
+});
 
 const zoom = d => {
   S.ui = Math.max(UI_MIN, Math.min(UI_MAX, S.ui + d));
@@ -1088,6 +1424,11 @@ document.addEventListener('keydown', ev => {
 // open class on would then lock the grid's scroll.
 matchMedia('(min-width:901px)').addEventListener('change', e => { if (e.matches) setDrawer(false); });
 
+// A stored mead tab should show in the URL too, so a reload or a copied link
+// lands where you left off.
+if (isMead() && location.hash !== '#mead') {
+  try { history.replaceState(null, '', '#mead'); } catch(e){}
+}
 renderAll();
 })();
 </script>
