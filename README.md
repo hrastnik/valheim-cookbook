@@ -38,7 +38,7 @@ Recipe content is rendered by JavaScript, so it isn't in the HTML source. Google
 - **Food / Mead tabs** at the top of the list. They're two different crafting worlds — different stations, different stats, no shared recipes — so they're separate views rather than one more filter. The inventory underneath them is *shared*, which is the point: the Honey you're carrying counts towards both a Boar jerky and a Tasty mead. Sort, station and effect filters are per-tab; the tab lives in the URL (`#mead`), so a link opens where you left it.
 - **My inventory** — type in what you're carrying. The list narrows to recipes that use those ingredients, and every card shows `have/need` per ingredient with a `✓ cook now ×N` badge for how many you can make. The ingredient picker is scoped to the tab you're on, so browsing pies doesn't offer you Powdered dragon eggshells.
 - **Sub-recipe chains are always on.** Ingredients count even when they need an intermediate step: hold raw Deer meat and *Deer stew* still appears, marked `✓ cook the parts first`, with its Cooked deer meat row flagged `can cook ↻`. Same for Barley → Barley flour → pies. Shared ingredients are pooled correctly, so a feast needing Deer stew ×3 *and* Queen's jam ×4 reports one combined Blueberries figure.
-- **Stations** — tick what you've built and set your cauldron level. This *is* the station filter: untick Stone oven and its ten recipes disappear; drop the cauldron to level 2 and the 16 higher-level recipes go with it. Each row shows how many recipes that station makes.
+- **Stations** — tick what you've built and set your cauldron level. This *is* the station filter: untick Stone oven and its fourteen recipes disappear; drop the cauldron to level 2 and the 28 higher-level recipes go with it. The Mead ketill appears here too, because Oat milk is brewed in it — it's the same tick as on the Mead tab. Each row shows how many recipes that station makes.
 - **Biome** — filter to one or more biomes. Every card also carries a colour-coded biome tag and its station, so a flat list stays scannable without grouping.
 - **Search** — matches recipe names and the whole ingredient tree, so "barley" finds every pie made with its flour. On the Mead tab it also matches effect text, so "carry" finds Mead of Troll endurance and "poison" finds its mead.
 - **Show** — recipes using my ingredients (default), can cook, missing only 1–2 things, or everything.
@@ -63,23 +63,26 @@ Two behaviours worth knowing:
 | File | |
 |---|---|
 | `index.html` | the whole app — markup, styles, logic |
-| `data.js` | generated: 60 cooked foods + 3 intermediates + 20 meads + 60 base ingredients |
-| `icons/` | 163 item icons, 64px, from the wiki (meads and mead bases included) |
+| `data.js` | generated: 77 cooked foods + 4 intermediates + 20 meads + 69 base ingredients |
+| `icons/` | 190 item icons, 64px, from the wiki (meads and mead bases included) — WebP for the older ones fetched from Fandom, PNG for those added since |
 | `scripts/scrape.py` | regenerates `data.js` and `icons/` |
 
 ## Data
 
-Scraped from the Valheim wiki via its MediaWiki API:
-[Food](https://valheim.fandom.com/wiki/Food) (the stats table),
-[Cauldron](https://valheim.fandom.com/wiki/Cauldron) (station levels),
-[Food preparation table](https://valheim.fandom.com/wiki/Food_preparation_table),
-[Feast](https://valheim.fandom.com/wiki/Feast),
-[Stone oven](https://valheim.fandom.com/wiki/Stone_oven),
-[Cooking station](https://valheim.fandom.com/wiki/Cooking_station),
-[Mead](https://valheim.fandom.com/wiki/Mead) (the mead table and its cooldown groups),
-[Mead Ketill](https://valheim.fandom.com/wiki/Mead_Ketill),
-[Fermenter](https://valheim.fandom.com/wiki/Fermenter),
-plus individual item pages for the spice blends, doughs, flour and the mead-only reagents.
+Scraped from the official Valheim wiki at [valheim.weirdgloop.org](https://valheim.weirdgloop.org) via its MediaWiki API:
+[Food](https://valheim.weirdgloop.org/w/Food) (the stats table),
+[Cauldron](https://valheim.weirdgloop.org/w/Cauldron) (station levels),
+[Food Preparation Table](https://valheim.weirdgloop.org/w/Food_Preparation_Table),
+[Feast](https://valheim.weirdgloop.org/w/Feast),
+[Stone Oven](https://valheim.weirdgloop.org/w/Stone_Oven),
+[Cooking Station](https://valheim.weirdgloop.org/w/Cooking_Station),
+[Mead](https://valheim.weirdgloop.org/w/Mead) (the mead table and its cooldown groups),
+[Mead Ketill](https://valheim.weirdgloop.org/w/Mead_Ketill),
+[Fermenter](https://valheim.weirdgloop.org/w/Fermenter),
+plus individual item pages for the spice blends, doughs, flours and the mead-only reagents.
+Stats, cauldron levels, yields and ingredients were then checked against the 1.0.15 game files as read out by [Physgun's item database](https://physgun.com/tools/valheim/items/), and the handful of rows where the wiki is wrong are overridden in the scraper.
+
+The data came from Fandom until the Deep North update (1.0). The community wiki moved to Weird Gloop, and Fandom's Food table only has half the Deep North rows, with blank ingredients and stations. Weird Gloop titles items in Title Case (`Cooked Boar Meat`); the scraper converts them back to the game's sentence case (`Cooked boar meat`), keeping biome names and a few proper nouns capitalised. The names have to stay the same because saved inventories are keyed by them. After the switch every pre-existing food, item and mead came out identical.
 
 Notes on the dataset:
 
@@ -88,6 +91,20 @@ Notes on the dataset:
 - `Bukeperries` and `Rotten meat` are excluded — they're −100% regen debuffs, not something you cook.
 - `Cooked bear meat` had no recipe listed on the wiki table; it's filled in from the Cooking station page (Bear meat ×1).
 - The Iron cooking station is treated as a superset of the Cooking station, so owning only the iron one still unlocks the basic grilled meats.
+- Deep North brings two new oven shapes. `Cooked seal blubber` goes into the Stone oven raw (`Stone oven`). `Baked poteitr` and `Oven pancake` are batters mixed in a cauldron and then baked (`Cauldron + Stone oven`, gated by both the cauldron level and the oven). As with the pies, the recipe stores the cauldron step's ingredients.
+- `Kale chips` is listed on the Food table as a straight oven bake of Kale ×12. Its [Raw Kale Chips](https://valheim.weirdgloop.org/w/Raw_Kale_Chips) page says the Kale goes into a level 6 cauldron and comes out as four raw chips, so `RECIPE_FIX` models it that way (`Cauldron + Stone oven`, level 6, makes 4). The game files confirm it (`KaleChipsUncooked`: Cauldron level 6, Kale ×12, makes 4).
+- `Oat milk` is brewed in the Mead ketill and is eaten as food, not fermented. It's also an ingredient in Pancakes and Oatmeal.
+- `Oat flour` is a Windmill intermediate, like Barley flour.
+- Where the wiki disagrees with the game files, the game files win. Neither wiki source is reliable on its own: the Deep North item pages are still marked work in progress, and the Food table has errors in both old and new rows. The fixes live in `MAT_FIX`, `STAT_FIX` and `INTERMEDIATE` in the scraper:
+  - `Cooked moose meat`: regen 7, not 5.
+  - `Oven pancake`: lasts 30 min, not 25, and the batter takes Poteitr ×2, not ×1.
+  - `Luminous larva`: lasts 10 min, not 15.
+  - `Lingonberry juice`: cauldron level 6, not 7.
+  - `Frosted sweetbread`: regen 4, not 2.
+  - `Cooked lox meat`: weighs 2.0, not 1.0.
+  - `Unbaked sweetbread`: one per craft, not two.
+- `Seasoning of the gourd` is bought from the Bog Witch at 220 coins for 5, after Kall Fimbulbringer. The item's infobox says 200, but its own text and the [Bog Witch](https://valheim.weirdgloop.org/w/The_Bog_Witch) trade table both say 220. Physgun has no trader prices to settle it.
+- Cauldron level 7 needs a Smoker. Saved settings from before 1.0 that were on level 6, then the maximum, are moved to 7 on load; otherwise every level 7 recipe would be hidden for returning users.
 
 And on the meads:
 
@@ -105,12 +122,13 @@ python3 scripts/scrape.py
 
 Standard library only, no dependencies. It re-parses the wiki, downloads any new icons, and rewrites `data.js`. Responses are cached in `scripts/.cache` — delete it to force a fresh fetch.
 
-The script **fails loudly** rather than silently producing a broken dataset: if an ingredient doesn't resolve to a known item, an edible food isn't listed in `BASE`, or an icon can't be found, it exits with the offending names. The mead half adds one more check — the recipe list on the Mead Ketill page must match the bases parsed out of the Mead table, so a mead added to one page and not the other is an error rather than a silent omission. When the game adds foods, that's your to-do list — new base ingredients go in the `BASE` dict, new intermediates in `INTERMEDIATE`, new mead-only reagents in `MEAD_ONLY`.
+The script **fails loudly** rather than silently producing a broken dataset: if an ingredient doesn't resolve to a known item, an edible food isn't listed in `BASE`, or an icon can't be found, it exits with the offending names. The mead half adds one more check — the recipe list on the Mead Ketill page must match the bases parsed out of the Mead table, so a mead added to one page and not the other is an error rather than a silent omission. When the game adds foods, that's your to-do list — new base ingredients go in the `BASE` dict, new intermediates in `INTERMEDIATE`, new mead-only reagents in `MEAD_ONLY`, and icons whose file isn't at the obvious name in `ICON_HINTS`.
 
-Three wiki quirks the script handles, all of which cost an afternoon to find:
+Four wiki and cache quirks the script handles, all of which cost an afternoon to find:
 
 - Filenames in the tables are often **redirects** to a re-capitalised upload, and a redirect page answers with no `imageinfo` at all. Some chain twice (`Black soup.png` → `BlackSoup.png` → `Black Soup.png`), so icon lookups pass `redirects=1` and walk the answer back to the name that was asked for.
 - `action=parse` does **not** follow redirects by default — without `redirects=1` it hands back the `#REDIRECT` stub.
+- The icon lookup is batched 40 files at a time, and each batch is cached keyed on its full list of filenames. A key built from the first filename alone breaks when a new name shifts every later batch: an old answer without the new file comes back and the icon reads as missing.
 - Cache filenames carry a hash suffix. macOS filesystems are case-insensitive, so `Mead ketill` and `Mead Ketill` would otherwise share one cache entry and the second page would quietly serve the first one's wikitext.
 
 ## Reminders baked into the footer

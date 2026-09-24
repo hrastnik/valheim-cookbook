@@ -5,10 +5,11 @@ Regenerate data.js and icons/ from the Valheim wiki.
 
     python3 scripts/scrape.py
 
-Fetches wikitext through the Fandom MediaWiki API, parses the stats table on
-/wiki/Food and the mead table on /wiki/Mead, patches the handful of gaps those
-tables have, resolves every item icon to a real file, downloads them at 64px,
-and writes data.js.
+Fetches wikitext through the MediaWiki API of the official Valheim wiki
+(valheim.weirdgloop.org — the community moved there from Fandom), parses the
+stats table on /w/Food and the mead table on /w/Mead, patches the handful of
+gaps those tables have, resolves every item icon to a real file, downloads them
+at 64px, and writes data.js.
 
 Standard library only. API responses are cached under scripts/.cache so re-runs
 are cheap; delete that directory to force a fresh fetch.
@@ -18,15 +19,34 @@ import hashlib, json, os, re, sys, time, urllib.parse, urllib.request
 ROOT  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = os.path.join(ROOT, 'scripts', '.cache')
 ICONS = os.path.join(ROOT, 'icons')
-API   = 'https://valheim.fandom.com/api.php'
+API   = 'https://valheim.weirdgloop.org/api.php'
 UA    = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
          '(KHTML, like Gecko) Chrome/120 Safari/537.36')
 
 BIOME_ORDER = ['Meadows', 'Black Forest', 'Swamp', 'Ocean', 'Mountain',
-               'Plains', 'Mistlands', 'Ashlands']
+               'Plains', 'Mistlands', 'Ashlands', 'Deep North']
 
 # Debuff items — not something you cook.
 SKIP = {'Bukeperries', 'Rotten meat'}
+
+# The wiki titles every item in Title Case ('Cooked Boar Meat'); the app has
+# always used the game's sentence case ('Cooked boar meat'). Names are also the
+# keys of saved inventories, so they must not drift. Proper nouns survive.
+PROPER = ['Black Forest', 'Meadows', 'Meadow', 'Swamp', 'Ocean', 'Mountain', 'Plains',
+          'Mistlands', 'Ashlands', 'Deep North', 'Troll', 'Vananidir', 'Ratatosk']
+
+
+def sentence(name):
+    s = name[:1].upper() + name[1:].lower()
+    for p in PROPER:
+        s = re.sub(r'\b%s\b' % re.escape(p), p, s, flags=re.I)
+    # Mead bases read 'Mead base: Minor healing' — the part after the colon is
+    # a name of its own.
+    return re.sub(r': (\w)', lambda m: ': ' + m.group(1).upper(), s)
+
+
+# The Food table's Focus column, as the fork colour the game draws on each food.
+FOCUS_FORK = {'Health': 'Red', 'Stamina': 'Yellow', 'Eitr': 'Blue', 'Mixed': 'White'}
 
 # The Food page files every feast under "Swamp" as a sort artefact; the Feast
 # page has the real biomes.
@@ -39,20 +59,50 @@ FEAST_BIOME = {
     'Plains pie picnic': 'Plains',
     'Mushrooms galore á la Mistlands': 'Mistlands',
     'Ashlands gourmet bowl': 'Ashlands',
+    'Northern morning fare': 'Deep North',
 }
 
-# Recipes the Food table leaves blank (sourced from /wiki/Cooking_station).
-MAT_FIX = {'Cooked bear meat': [['Bear meat', 1]]}
+# Recipes the Food table leaves blank (sourced from /w/Cooking_station) or gets
+# wrong. Oven pancake batter takes Poteitr ×2, not ×1 (game files, see STAT_FIX).
+MAT_FIX = {
+    'Cooked bear meat': [['Bear meat', 1]],
+    'Oven pancake': [['Moose meat', 1], ['Lingonberries', 2], ['Poteitr', 2], ['Oat flour', 2]],
+}
 
-# Intermediates other recipes consume directly. Sourced from /wiki/Bread,
-# /wiki/Frosted_sweetbread and /wiki/Barley_flour.
+# Values where the Food table disagrees with the 1.0.15 game files, as read out
+# by https://physgun.com/tools/valheim/items/<slug>/. The Deep North rows are
+# still marked work in progress on the wiki; the item pages are right about some
+# of these and wrong about others, so neither wiki source wins on its own.
+STAT_FIX = {
+    'Cooked moose meat':  dict(heal=7),
+    'Oven pancake':       dict(duration=1800),
+    'Luminous larva':     dict(duration=600),
+    'Lingonberry juice':  dict(level=6),
+    'Frosted sweetbread': dict(heal=4),
+    'Cooked lox meat':    dict(weight=2.0),
+    # Not a game-file value: the table has the per-serving 1.0, every other feast
+    # row (and the item page) the 10.0 of the placeable feast.
+    'Northern morning fare': dict(weight=10.0),
+}
+
+# The Food table files Kale chips as a one-step Stone oven bake of Kale ×12, but
+# the Kale goes into a level 6 Cauldron first and comes out as four Raw kale
+# chips (/w/Raw_Kale_Chips), each of which is baked. Same two-step shape as
+# Baked poteitr, which the table does get right.
+RECIPE_FIX = {'Kale chips': dict(station='Cauldron + Stone oven', level=6, qty=4)}
+
+# Intermediates other recipes consume directly. Sourced from /w/Bread,
+# /w/Frosted_sweetbread and /w/Barley_flour; yields checked against the game
+# files (Unbaked sweetbread makes one, not two).
 INTERMEDIATE = [
     dict(name='Barley flour', station='Windmill', biome='Plains', qty=1,
          mats=[['Barley', 1]]),
     dict(name='Bread dough', station='Food preparation table', biome='Plains', qty=2,
          mats=[['Barley flour', 10]]),
-    dict(name='Unbaked sweetbread', station='Food preparation table', biome='Plains', qty=2,
+    dict(name='Unbaked sweetbread', station='Food preparation table', biome='Plains', qty=1,
          mats=[['Cloudberries', 2], ['Egg', 1], ['Barley flour', 1], ['Honey', 1]]),
+    dict(name='Oat flour', station='Windmill', biome='Deep North', qty=1,
+         mats=[['Oats', 1]]),
 ]
 
 # Base ingredients: biome, where you get it, category.
@@ -99,12 +149,21 @@ BASE = {
     'Volture meat':     ('Ashlands', 'Volture', 'drop'),
     'Volture egg':      ('Ashlands', 'Volture nests', 'drop'),
     'Bonemaw meat':     ('Ashlands', 'Bonemaw', 'drop'),
+    'Luminous larva':   ('Deep North', 'Walls of the Winding Tunnels', 'forage'),
+    'Lingonberries':    ('Deep North', 'Bushes in Deep North', 'forage'),
+    'Oats':             ('Deep North', 'Deep North; plant oat seeds', 'farm'),
+    'Kale':             ('Deep North', 'Deep North; plant kale seeds', 'farm'),
+    'Poteitr':          ('Deep North', 'Deep North; plant poteitr seeds', 'farm'),
+    'Ice':              ('Deep North', 'Ice sheets & ice ponds; Deep North Greydwarfs', 'drop'),
+    'Seal blubber':     ('Deep North', 'Seal', 'drop'),
+    'Moose meat':       ('Deep North', 'Moose', 'drop'),
     'Woodland herb blend':          ('Black Forest', 'Buy from The Bog Witch — 120 coins / 5 (after The Elder)', 'vendor'),
     "Seafarer's herbs":             ('Ocean', 'Buy from The Bog Witch — 130 coins / 5 (after killing a Serpent)', 'vendor'),
     'Mountain peak pepper powder':  ('Mountain', 'Buy from The Bog Witch — 140 coins / 5 (after Moder)', 'vendor'),
     'Grasslands herbalist harvest': ('Plains', 'Buy from The Bog Witch — 160 coins / 5 (after Yagluth)', 'vendor'),
     'Herbs of the hidden hills':    ('Mistlands', 'Buy from The Bog Witch — 180 coins / 5 (after The Queen)', 'vendor'),
     'Fiery spice powder':           ('Ashlands', 'Buy from The Bog Witch — 200 coins / 5 (after Fader)', 'vendor'),
+    'Seasoning of the gourd':       ('Deep North', 'Buy from The Bog Witch — 220 coins / 5 (after Kall Fimbulbringer)', 'vendor'),
 }
 
 # Ingredients only meads use — none of these are food, so they'd never appear in
@@ -129,13 +188,13 @@ MEAD_ONLY = {
 # isn't a brewing recipe and the Mead ketill page doesn't list it.
 MEAD_SKIP = {'Love potion'}
 
-# The cooldown groups on /wiki/Mead map cleanly onto the effect a mead gives.
+# The cooldown groups on /w/Mead map cleanly onto the effect a mead gives.
 # Tasty mead is in no group and its effect reads as a health *penalty* for a
 # stamina gain, so the text rule below would file it under utility.
 GROUP_KIND = {'healing': 'health', 'stamina': 'stamina', 'eitr': 'eitr'}
 MEAD_KIND_FIX = {'Tasty mead': 'stamina'}
 
-# A fermenter cycle, per /wiki/Fermenter. Kept as wiki-sourced game-time rather
+# A fermenter cycle, per /w/Fermenter. Kept as wiki-sourced game-time rather
 # than converted to real minutes, which depends on the server's day length.
 FERMENT_TIME = '2 in-game days'
 
@@ -149,6 +208,7 @@ ICON_HINTS = {
     'Asksvin tail': ['Asksvin tail.png', 'Asksvin Tail.png'],
     'Bonemaw meat': ['Bonemaw meat.png', 'Bonemaw Meat.png'],
     'Volture meat': ['Volture meat.png', 'Volture Meat.png'],
+    'Seasoning of the gourd': ['Seasoning of the Gourd.png'],
 }
 
 
@@ -252,13 +312,14 @@ def parse_food_table(text):
         name = clean(cells[0])
         if not name:
             continue
-        mats = [[m.group(1).strip(), int(m.group(2))] for m in
+        mats = [[sentence(m.group(1).strip()), int(m.group(2))] for m in
                 re.finditer(r'\*\s*\[\[([^\]|]+)(?:\|[^\]]*)?\]\]\s*x\s*(\d+)', cells[6])]
+        focus = clean(cells[7]).lstrip('|').strip()
         out.append(dict(
-            name=name, icon=clean(cells[1]),
+            name=sentence(name), wiki=name, icon=clean(cells[1]),
             hp=clean(cells[2]), stam=clean(cells[3]), eitr=clean(cells[4]),
             mats=mats,
-            fork=clean(cells[7]).replace('N/A', '').strip().lstrip('|').strip(),
+            fork=FOCUS_FORK.get(focus, ''),
             heal=clean(cells[8]), dur=clean(cells[9]), weight=clean(cells[10]),
             stack=clean(cells[11]), biome=clean(cells[12]), station=clean(cells[13]),
             mult=clean(cells[14]) if len(cells) > 14 else '',
@@ -284,7 +345,7 @@ def parse_mead_groups(text):
             continue
         m = ITEM_LINK_BARE.match(line.lstrip('*').strip()) if line.startswith('**') else None
         if m and cur:
-            groups[m.group(1)] = cur
+            groups[sentence(m.group(1))] = cur
     return groups
 
 
@@ -301,11 +362,11 @@ def parse_mead_table(text):
         # Column 2 is the base's icon; its link= target is the base item name.
         m = re.search(r'link=([^|\]]+)', cells[2]) or re.search(r'File:(.+?)\.png', cells[2])
         out.append(dict(
-            name=name, icon=clean(cells[1]),
-            base=m.group(1).strip() if m else '',
+            name=sentence(name), wiki=name, icon=clean(cells[1]),
+            base=sentence(m.group(1).strip()) if m else '',
             base_icon=(re.search(r'File:([^|\]]+)', cells[2]).group(1).strip()
                        if 'File:' in cells[2] else ''),
-            mats=[[a, int(b)] for a, b in ITEM_LINK.findall(cells[3])],
+            mats=[[sentence(a), int(b)] for a, b in ITEM_LINK.findall(cells[3])],
             qty=num(clean(cells[4])),
             effect=clean(cells[5]), dur=clean(cells[6]), cd=clean(cells[7]),
         ))
@@ -313,14 +374,20 @@ def parse_mead_table(text):
 
 
 def parse_station(stn):
-    stn = stn.strip()
-    if stn.startswith('Cauldron'):
+    # The wiki capitalises station names inconsistently ('Cooking Station' but
+    # 'Iron cooking station'), so match on lower case.
+    stn = stn.strip().lower()
+    oven = 'stone oven' in stn
+    if stn.startswith('cauldron'):
         m = re.search(r'\((\d+)\)', stn)
-        return 'Cauldron', int(m.group(1)) if m else 1
-    if 'Stone Oven' in stn or 'Stone oven' in stn:
-        return 'Food prep table + Stone oven', 0
-    for s in ('Food preparation table', 'Iron cooking station', 'Cooking station'):
-        if stn.startswith(s):
+        return ('Cauldron + Stone oven' if oven else 'Cauldron'), int(m.group(1)) if m else 1
+    if oven:
+        # A bare 'Stone Oven' bakes the raw ingredient straight, no prep step.
+        return ('Food prep table + Stone oven' if stn.startswith('food prep')
+                else 'Stone oven'), 0
+    for s in ('Food preparation table', 'Iron cooking station', 'Cooking station',
+              'Mead ketill'):
+        if stn.startswith(s.lower()):
             return s, 0
     return '', 0            # parenthesised = gathered, not cooked
 
@@ -335,9 +402,12 @@ def resolve_icons(names, table_icons):
         for h in ICON_HINTS.get(n, []):
             if h not in c:
                 c.append(h)
-        guess = n[0].upper() + n[1:] + '.png'
-        if guess not in c:
-            c.append(guess)
+        # The wiki uploads under Title Case; the sentence-case spelling is often
+        # a redirect to it, but not always.
+        for guess in (n[0].upper() + n[1:] + '.png',
+                      ' '.join(w[:1].upper() + w[1:] for w in n.split()) + '.png'):
+            if guess not in c:
+                c.append(guess)
         cands[n] = c
 
     files = sorted({f for v in cands.values() for f in v})
@@ -351,7 +421,10 @@ def resolve_icons(names, table_icons):
         d = api({'action': 'query', 'titles': '|'.join('File:' + c for c in chunk),
                  'redirects': '1', 'prop': 'imageinfo', 'iiprop': 'url',
                  'iiurlwidth': '64', 'format': 'json', 'formatversion': '2'},
-                'img-%d-%s' % (i, chunk[0]))
+                # Keyed on the whole chunk: a new filename shifts every chunk
+                # after it, and a key built from the first name alone would
+                # then serve a stale answer that lacks the new file.
+                'img-' + '|'.join(chunk))
         # Walk each answer back to the title we actually asked for.
         back = {n['to']: n['from'] for n in d['query'].get('normalized', [])}
         back.update({r['to']: r['from'] for r in d['query'].get('redirects', [])})
@@ -372,14 +445,24 @@ def resolve_icons(names, table_icons):
         if not hit:
             missing.append(name)
             continue
-        slug = re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-') + '.webp'
-        path = os.path.join(ICONS, slug)
-        # Fetch fully before opening the file. Writing straight from http() left
-        # a 0-byte icon behind whenever a download failed, and the exists() check
-        # then skipped it on every later run.
-        if not (os.path.exists(path) and os.path.getsize(path) > 0):
+        stem = re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+        # Icons fetched from Fandom are WebP; Weird Gloop serves the PNG it was
+        # uploaded as. Either is kept as-is — an icon already on disk is never
+        # re-fetched, so the older ones stay WebP.
+        slug = next((stem + ext for ext in ('.webp', '.png')
+                     if os.path.exists(os.path.join(ICONS, stem + ext))
+                     and os.path.getsize(os.path.join(ICONS, stem + ext)) > 0), None)
+        if not slug:
+            # Fetch fully before opening the file. Writing straight from http()
+            # left a 0-byte icon behind whenever a download failed, and the
+            # exists() check then skipped it on every later run.
             blob = http(found[hit])
-            with open(path, 'wb') as fh:
+            ext = ('.webp' if blob[:4] == b'RIFF' and blob[8:12] == b'WEBP'
+                   else '.png' if blob[:8] == b'\x89PNG\r\n\x1a\n' else None)
+            if not ext:
+                sys.exit('icon for %s is neither PNG nor WebP: %s' % (name, found[hit]))
+            slug = stem + ext
+            with open(os.path.join(ICONS, slug), 'wb') as fh:
                 fh.write(blob)
             time.sleep(0.1)
         resolved[name] = slug
@@ -392,12 +475,12 @@ def build_meads(biome_of):
     text = wikitext('Mead')
     groups = parse_mead_groups(text)
     rows = [m for m in parse_mead_table(text) if m['name'] not in MEAD_SKIP]
-    print('  parsed %d meads from /wiki/Mead' % len(rows))
+    print('  parsed %d meads from /w/Mead' % len(rows))
 
     # The ketill page is the authority on what's actually brewable. Any drift
     # between the two lists is a wiki edit we want to hear about, not paper over.
-    listed = set(ITEM_LINK_BARE.findall(
-        wikitext('Mead Ketill').split('== Recipes ==')[1].split('==Trivia==')[0]))
+    listed = {sentence(n) for n in ITEM_LINK_BARE.findall(
+        wikitext('Mead Ketill').split('== Recipes ==')[1].split('==Trivia==')[0])}
     parsed = {m['base'] for m in rows}
     if parsed != listed:
         sys.exit('Mead ketill recipe list disagrees with the mead table:\n'
@@ -433,13 +516,15 @@ def build_meads(biome_of):
 def main():
     print('fetching wiki pages…')
     foods = parse_food_table(wikitext('Food'))
-    print('  parsed %d rows from /wiki/Food' % len(foods))
+    print('  parsed %d rows from /w/Food' % len(foods))
 
     recipes, gathered = [], {}
     for f in foods:
         if f['name'] in SKIP:
             continue
         station, level = parse_station(f['station'])
+        fix = RECIPE_FIX.get(f['name'], {})
+        station, level = fix.get('station', station), fix.get('level', level)
         biome = FEAST_BIOME.get(f['name'], f['biome'])
         if biome not in BIOME_ORDER:
             sys.exit('unexpected biome %r on %s' % (biome, f['name']))
@@ -452,9 +537,10 @@ def main():
             tier=BIOME_ORDER.index(biome) + 1, station=station, level=level,
             mats=MAT_FIX.get(f['name'], f['mats']),
         )
+        e.update(STAT_FIX.get(f['name'], {}))
         if station:
             m = re.match(r'^\s*(\d+)\s*$', f['mult'])
-            e['yield'] = int(m.group(1)) if m else 1
+            e['yield'] = fix.get('qty') or (int(m.group(1)) if m else 1)
             e['feast'] = '10 uses' in f['mult']
             recipes.append(e)
         else:
@@ -511,11 +597,11 @@ def main():
                 items=items, recipes=recipes, meads=meads)
     dest = os.path.join(ROOT, 'data.js')
     with open(dest, 'w', encoding='utf-8') as fh:
-        fh.write('// Valheim food data, scraped from valheim.fandom.com\n')
+        fh.write('// Valheim food data, scraped from valheim.weirdgloop.org\n')
         fh.write('// Regenerate with: python3 scripts/scrape.py\n')
-        fh.write('// Sources: /wiki/Food, /wiki/Cauldron, /wiki/Food_preparation_table,\n')
-        fh.write('//          /wiki/Feast, /wiki/Stone_oven, /wiki/Cooking_station,\n')
-        fh.write('//          /wiki/Mead, /wiki/Mead_Ketill, /wiki/Fermenter.\n')
+        fh.write('// Sources: /w/Food, /w/Cauldron, /w/Food_Preparation_Table,\n')
+        fh.write('//          /w/Feast, /w/Stone_Oven, /w/Cooking_Station,\n')
+        fh.write('//          /w/Mead, /w/Mead_Ketill, /w/Fermenter.\n')
         fh.write('window.VALHEIM = ')
         json.dump(data, fh, indent=1, ensure_ascii=False)
         fh.write(';\n')

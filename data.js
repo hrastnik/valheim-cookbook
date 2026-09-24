@@ -1,8 +1,8 @@
-// Valheim food data, scraped from valheim.fandom.com
+// Valheim food data, scraped from valheim.weirdgloop.org
 // Regenerate with: python3 scripts/scrape.py
-// Sources: /wiki/Food, /wiki/Cauldron, /wiki/Food_preparation_table,
-//          /wiki/Feast, /wiki/Stone_oven, /wiki/Cooking_station,
-//          /wiki/Mead, /wiki/Mead_Ketill, /wiki/Fermenter.
+// Sources: /w/Food, /w/Cauldron, /w/Food_Preparation_Table,
+//          /w/Feast, /w/Stone_Oven, /w/Cooking_Station,
+//          /w/Mead, /w/Mead_Ketill, /w/Fermenter.
 window.VALHEIM = {
  "biomeOrder": [
   "Meadows",
@@ -12,7 +12,8 @@ window.VALHEIM = {
   "Mountain",
   "Plains",
   "Mistlands",
-  "Ashlands"
+  "Ashlands",
+  "Deep North"
  ],
  "fermentTime": "2 in-game days",
  "items": [
@@ -605,6 +606,118 @@ window.VALHEIM = {
    "edible": false
   },
   {
+   "name": "Luminous larva",
+   "icon": "luminous-larva.png",
+   "biome": "Deep North",
+   "tier": 9,
+   "source": "Walls of the Winding Tunnels",
+   "cat": "forage",
+   "hp": 30,
+   "stam": 30,
+   "eitr": 0,
+   "heal": 1,
+   "duration": 600,
+   "edible": true
+  },
+  {
+   "name": "Lingonberries",
+   "icon": "lingonberries.png",
+   "biome": "Deep North",
+   "tier": 9,
+   "source": "Bushes in Deep North",
+   "cat": "forage",
+   "hp": 35,
+   "stam": 35,
+   "eitr": 0,
+   "heal": 1,
+   "duration": 900,
+   "edible": true
+  },
+  {
+   "name": "Oats",
+   "icon": "oats.png",
+   "biome": "Deep North",
+   "tier": 9,
+   "source": "Deep North; plant oat seeds",
+   "cat": "farm",
+   "hp": 33,
+   "stam": 33,
+   "eitr": 0,
+   "heal": 3,
+   "duration": 1800,
+   "edible": true
+  },
+  {
+   "name": "Kale",
+   "icon": "kale.png",
+   "biome": "Deep North",
+   "tier": 9,
+   "source": "Deep North; plant kale seeds",
+   "cat": "farm",
+   "hp": 35,
+   "stam": 35,
+   "eitr": 0,
+   "heal": 1,
+   "duration": 900,
+   "edible": true
+  },
+  {
+   "name": "Poteitr",
+   "icon": "poteitr.png",
+   "biome": "Deep North",
+   "tier": 9,
+   "source": "Deep North; plant poteitr seeds",
+   "cat": "farm",
+   "hp": 35,
+   "stam": 35,
+   "eitr": 35,
+   "heal": 1,
+   "duration": 900,
+   "edible": true
+  },
+  {
+   "name": "Ice",
+   "icon": "ice.png",
+   "biome": "Deep North",
+   "tier": 9,
+   "source": "Ice sheets & ice ponds; Deep North Greydwarfs",
+   "cat": "drop",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Seal blubber",
+   "icon": "seal-blubber.png",
+   "biome": "Deep North",
+   "tier": 9,
+   "source": "Seal",
+   "cat": "drop",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Moose meat",
+   "icon": "moose-meat.png",
+   "biome": "Deep North",
+   "tier": 9,
+   "source": "Moose",
+   "cat": "drop",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
    "name": "Woodland herb blend",
    "icon": "woodland-herb-blend.webp",
    "biome": "Black Forest",
@@ -680,6 +793,20 @@ window.VALHEIM = {
    "biome": "Ashlands",
    "tier": 8,
    "source": "Buy from The Bog Witch — 200 coins / 5 (after Fader)",
+   "cat": "vendor",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "edible": false
+  },
+  {
+   "name": "Seasoning of the gourd",
+   "icon": "seasoning-of-the-gourd.png",
+   "biome": "Deep North",
+   "tier": 9,
+   "source": "Buy from The Bog Witch — 220 coins / 5 (after Kall Fimbulbringer)",
    "cat": "vendor",
    "hp": 0,
    "stam": 0,
@@ -1008,6 +1135,38 @@ window.VALHEIM = {
     ],
     [
      "Carrot",
+     1
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Pulled bear",
+   "icon": "pulled-bear.png",
+   "hp": 37,
+   "stam": 16,
+   "eitr": 0,
+   "heal": 3,
+   "duration": 1800,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Red",
+   "biome": "Black Forest",
+   "tier": 2,
+   "station": "Cauldron",
+   "level": 1,
+   "mats": [
+    [
+     "Cooked bear meat",
+     1
+    ],
+    [
+     "Carrot",
+     2
+    ],
+    [
+     "Blueberries",
      1
     ]
    ],
@@ -1678,7 +1837,7 @@ window.VALHEIM = {
    "eitr": 0,
    "heal": 4,
    "duration": 1200,
-   "weight": 1.0,
+   "weight": 2.0,
    "stack": 20,
    "fork": "Red",
    "biome": "Plains",
@@ -1816,7 +1975,7 @@ window.VALHEIM = {
    "hp": 43,
    "stam": 43,
    "eitr": 0,
-   "heal": 2,
+   "heal": 4,
    "duration": 1800,
    "weight": 1.0,
    "stack": 10,
@@ -2639,6 +2798,502 @@ window.VALHEIM = {
    "feast": true
   },
   {
+   "name": "Cooked seal blubber",
+   "icon": "cooked-seal-blubber.png",
+   "hp": 60,
+   "stam": 20,
+   "eitr": 0,
+   "heal": 5,
+   "duration": 1200,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Red",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Stone oven",
+   "level": 0,
+   "mats": [
+    [
+     "Seal blubber",
+     1
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Cooked moose meat",
+   "icon": "cooked-moose-meat.png",
+   "hp": 80,
+   "stam": 27,
+   "eitr": 0,
+   "heal": 7,
+   "duration": 1200,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Red",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Iron cooking station",
+   "level": 0,
+   "mats": [
+    [
+     "Moose meat",
+     1
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Smoked moose meat",
+   "icon": "smoked-moose-meat.png",
+   "hp": 105,
+   "stam": 35,
+   "eitr": 0,
+   "heal": 7,
+   "duration": 1500,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Red",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron",
+   "level": 7,
+   "mats": [
+    [
+     "Moose meat",
+     1
+    ],
+    [
+     "Kale",
+     2
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Meat in bread",
+   "icon": "meat-in-bread.png",
+   "hp": 110,
+   "stam": 37,
+   "eitr": 0,
+   "heal": 7,
+   "duration": 1800,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Red",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron",
+   "level": 7,
+   "mats": [
+    [
+     "Moose meat",
+     1
+    ],
+    [
+     "Kale",
+     2
+    ],
+    [
+     "Oat flour",
+     1
+    ],
+    [
+     "Lingonberries",
+     2
+    ]
+   ],
+   "yield": 2,
+   "feast": false
+  },
+  {
+   "name": "Seal meat soup",
+   "icon": "seal-meat-soup.png",
+   "hp": 110,
+   "stam": 37,
+   "eitr": 0,
+   "heal": 7,
+   "duration": 1800,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Red",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron",
+   "level": 7,
+   "mats": [
+    [
+     "Seal blubber",
+     2
+    ],
+    [
+     "Kale",
+     2
+    ],
+    [
+     "Ice",
+     2
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Kale chips",
+   "icon": "kale-chips.png",
+   "hp": 35,
+   "stam": 105,
+   "eitr": 0,
+   "heal": 5,
+   "duration": 1500,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Yellow",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron + Stone oven",
+   "level": 6,
+   "mats": [
+    [
+     "Kale",
+     12
+    ]
+   ],
+   "yield": 4,
+   "feast": false
+  },
+  {
+   "name": "Lingonberry juice",
+   "icon": "lingonberry-juice.png",
+   "hp": 35,
+   "stam": 105,
+   "eitr": 0,
+   "heal": 5,
+   "duration": 1500,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Yellow",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron",
+   "level": 6,
+   "mats": [
+    [
+     "Lingonberries",
+     5
+    ],
+    [
+     "Ice",
+     5
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Oat milk",
+   "icon": "oat-milk.png",
+   "hp": 37,
+   "stam": 110,
+   "eitr": 0,
+   "heal": 5,
+   "duration": 1500,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Yellow",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Mead ketill",
+   "level": 0,
+   "mats": [
+    [
+     "Oats",
+     5
+    ],
+    [
+     "Ice",
+     5
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Pancakes",
+   "icon": "pancakes.png",
+   "hp": 39,
+   "stam": 115,
+   "eitr": 0,
+   "heal": 5,
+   "duration": 1800,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Yellow",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron",
+   "level": 6,
+   "mats": [
+    [
+     "Blueberries",
+     2
+    ],
+    [
+     "Egg",
+     2
+    ],
+    [
+     "Oat milk",
+     1
+    ],
+    [
+     "Oat flour",
+     2
+    ]
+   ],
+   "yield": 3,
+   "feast": false
+  },
+  {
+   "name": "Oatmeal",
+   "icon": "oatmeal.png",
+   "hp": 39,
+   "stam": 115,
+   "eitr": 85,
+   "heal": 5,
+   "duration": 1800,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Yellow",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron",
+   "level": 6,
+   "mats": [
+    [
+     "Oats",
+     2
+    ],
+    [
+     "Lingonberries",
+     2
+    ],
+    [
+     "Oat milk",
+     1
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Smoked fish",
+   "icon": "smoked-fish.png",
+   "hp": 30,
+   "stam": 16,
+   "eitr": 95,
+   "heal": 5,
+   "duration": 1500,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Blue",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron",
+   "level": 7,
+   "mats": [
+    [
+     "Raw fish",
+     1
+    ],
+    [
+     "Kale",
+     1
+    ],
+    [
+     "Poteitr",
+     1
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Baked poteitr",
+   "icon": "baked-poteitr.png",
+   "hp": 34,
+   "stam": 17,
+   "eitr": 100,
+   "heal": 5,
+   "duration": 1500,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Blue",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron + Stone oven",
+   "level": 7,
+   "mats": [
+    [
+     "Seal blubber",
+     1
+    ],
+    [
+     "Kale",
+     2
+    ],
+    [
+     "Poteitr",
+     1
+    ],
+    [
+     "Oat flour",
+     2
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Meatballs and poteitr",
+   "icon": "meatballs-and-poteitr.png",
+   "hp": 35,
+   "stam": 18,
+   "eitr": 105,
+   "heal": 5,
+   "duration": 1500,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Blue",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron",
+   "level": 7,
+   "mats": [
+    [
+     "Moose meat",
+     1
+    ],
+    [
+     "Poteitr",
+     2
+    ],
+    [
+     "Lingonberries",
+     2
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Oven pancake",
+   "icon": "oven-pancake.png",
+   "hp": 37,
+   "stam": 18,
+   "eitr": 105,
+   "heal": 5,
+   "duration": 1800,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Blue",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron + Stone oven",
+   "level": 6,
+   "mats": [
+    [
+     "Moose meat",
+     1
+    ],
+    [
+     "Lingonberries",
+     2
+    ],
+    [
+     "Poteitr",
+     2
+    ],
+    [
+     "Oat flour",
+     2
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Fish soup",
+   "icon": "fish-soup.png",
+   "hp": 37,
+   "stam": 18,
+   "eitr": 105,
+   "heal": 5,
+   "duration": 1800,
+   "weight": 1.0,
+   "stack": 10,
+   "fork": "Blue",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Cauldron",
+   "level": 7,
+   "mats": [
+    [
+     "Raw fish",
+     3
+    ],
+    [
+     "Kale",
+     2
+    ],
+    [
+     "Ice",
+     2
+    ]
+   ],
+   "yield": 1,
+   "feast": false
+  },
+  {
+   "name": "Northern morning fare",
+   "icon": "northern-morning-fare.png",
+   "hp": 85,
+   "stam": 85,
+   "eitr": 43,
+   "heal": 7,
+   "duration": 3000,
+   "weight": 10.0,
+   "stack": 5,
+   "fork": "White",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Food preparation table",
+   "level": 0,
+   "mats": [
+    [
+     "Cooked moose meat",
+     3
+    ],
+    [
+     "Poteitr",
+     5
+    ],
+    [
+     "Oat flour",
+     2
+    ],
+    [
+     "Seasoning of the gourd",
+     1
+    ]
+   ],
+   "yield": 1,
+   "feast": true
+  },
+  {
    "name": "Barley flour",
    "icon": "barley-flour.webp",
    "hp": 0,
@@ -2723,7 +3378,32 @@ window.VALHEIM = {
    ],
    "intermediate": true,
    "feast": false,
-   "yield": 2
+   "yield": 1
+  },
+  {
+   "name": "Oat flour",
+   "icon": "oat-flour.png",
+   "hp": 0,
+   "stam": 0,
+   "eitr": 0,
+   "heal": 0,
+   "duration": 0,
+   "weight": null,
+   "stack": 0,
+   "fork": "",
+   "biome": "Deep North",
+   "tier": 9,
+   "station": "Windmill",
+   "level": 0,
+   "mats": [
+    [
+     "Oats",
+     1
+    ]
+   ],
+   "intermediate": true,
+   "feast": false,
+   "yield": 1
   }
  ],
  "meads": [

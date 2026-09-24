@@ -91,6 +91,7 @@
   --b-plains:#e0b048;
   --b-mistlands:#a58cc4;
   --b-ashlands:#e0663c;
+  --b-deep-north:#5fd3c4;       /* aurora — Mountain already has the icy blue */
   /* Food-group hues, matching the coloured fork the game puts on every food.
      Deliberately the same reds/yellows/blues as the stat bars below them. */
   --g-health:#e2593d;
@@ -553,13 +554,13 @@ button:focus-visible,.pill:focus-visible,[tabindex]:focus-visible{
 <noscript>
   <div style="max-width:44rem;margin:3rem auto;padding:0 1.5rem;font-family:Georgia,serif;color:#ece0c8">
     <p style="color:#e8c07a;font-size:2rem;font-weight:700">Valheim Cookbook</p>
-    <p style="margin-top:1rem;line-height:1.6">This tool filters 60 Valheim food recipes and 20 Mead
+    <p style="margin-top:1rem;line-height:1.6">This tool filters 77 Valheim food recipes and 20 Mead
     ketill recipes against the ingredients you have, so it needs JavaScript enabled. Everything runs
     in your browser — no server, no tracking.</p>
     <p style="margin-top:1rem;line-height:1.6">The underlying data comes from the
-    <a href="https://valheim.fandom.com/wiki/Food" style="color:#c9a05c">Valheim wiki</a> —
-    the <a href="https://valheim.fandom.com/wiki/Food" style="color:#c9a05c">Food</a> and
-    <a href="https://valheim.fandom.com/wiki/Mead" style="color:#c9a05c">Mead</a> pages.</p>
+    <a href="https://valheim.weirdgloop.org/w/Food" style="color:#c9a05c">Valheim wiki</a> —
+    the <a href="https://valheim.weirdgloop.org/w/Food" style="color:#c9a05c">Food</a> and
+    <a href="https://valheim.weirdgloop.org/w/Mead" style="color:#c9a05c">Mead</a> pages.</p>
   </div>
 </noscript>
 <div id="app">
@@ -696,12 +697,18 @@ const FORK_SVG = `<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
   + `<path d="M2 1.2h1.1v3.9H4V1.2h1.1v3.9H6V1.2h1.1v4.4c0 .9-.5 1.6-1.3 1.9v7.3H3.3V7.5C2.5 7.2 2 6.5 2 5.6z"/>`
   + `<path d="M12.4 1.2c1 0 1.6 1.4 1.6 3.4 0 1.6-.4 2.8-1.1 3.2v7h-1.6V1.6c.3-.3.7-.4 1.1-.4z"/></svg>`;
 
+// `makes` is every station string a row unlocks, for its recipe count. The oven
+// finishes three kinds of recipe: prep-table pies, cauldron batters, and raw
+// seal blubber baked as-is.
 const STATIONS = [
-  {key:'cook', label:'Cooking station',        station:'Cooking station'},
-  {key:'iron', label:'Iron cooking station',   station:'Iron cooking station'},
-  {key:'prep', label:'Food preparation table', station:'Food preparation table'},
-  {key:'oven', label:'Stone oven',             station:'Food prep table + Stone oven'},
-  {key:'mill', label:'Windmill',               station:'Windmill'},
+  {key:'cook', label:'Cooking station',        makes:['Cooking station']},
+  {key:'iron', label:'Iron cooking station',   makes:['Iron cooking station']},
+  {key:'prep', label:'Food preparation table', makes:['Food preparation table']},
+  {key:'oven', label:'Stone oven',
+   makes:['Food prep table + Stone oven', 'Cauldron + Stone oven', 'Stone oven']},
+  {key:'mill', label:'Windmill',               makes:['Windmill']},
+  // Shares its tick with the Mead tab: Oat milk is brewed in the same ketill.
+  {key:'ketill', label:'Mead ketill',          makes:['Mead ketill']},
 ];
 const SHORT_STATION = {
   'Food preparation table': 'Prep table',
@@ -724,13 +731,15 @@ const KIND_ORDER = MEAD_KINDS.map(k => k.key);
 const DROP_SVG = `<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">`
   + `<path d="M8 .8c2.6 3.4 5 6.4 5 9.1A5 5 0 0 1 3 9.9C3 7.2 5.4 4.2 8 .8z"/></svg>`;
 const UI_MIN = 14, UI_MAX = 24;
+const CAULDRON_MAX = 7;
 
 /* ───────── state ───────── */
 // Food and mead keep separate sort settings — the two option lists barely
 // overlap, so carrying one across would land on a key the other doesn't have.
 const DEFAULTS = () => ({
-  inv:{}, st:{cook:true,iron:true,prep:true,oven:true,mill:true,cauldron:6,
+  inv:{}, st:{cook:true,iron:true,prep:true,oven:true,mill:true,cauldron:CAULDRON_MAX,
               ketill:true,ferment:true},
+  dv:1,
   q:'', avail:'uses', sort:'total', dir:-1, biomes:[], ui:17,
   mode:'food', msort:'kind', mdir:1, kinds:[],
 });
@@ -739,10 +748,15 @@ const KEY = 'valheim-cookbook-v3';
 try {
   const raw = localStorage.getItem(KEY);
   if (raw) {
-    S = Object.assign(DEFAULTS(), JSON.parse(raw));
+    const saved = JSON.parse(raw);
+    S = Object.assign(DEFAULTS(), saved);
     // st is a nested object, so the assign above replaces it wholesale — a
     // v3 save predates the mead stations and would leave them undefined.
     S.st = Object.assign(DEFAULTS().st, S.st);
+    // Deep North raised the cauldron cap to 7. A save from before then holds 6
+    // as its "everything" default, which would silently hide every level 7
+    // recipe. dv marks saves made after the change.
+    if (!saved.dv && S.st.cauldron === 6) S.st.cauldron = CAULDRON_MAX;
   }
 } catch(e){}
 if (location.hash === '#mead' || location.hash === '#food') S.mode = location.hash.slice(1);
@@ -758,7 +772,10 @@ function stationOK(r){
     case 'Cauldron': return st.cauldron >= r.level;
     case 'Food preparation table': return st.prep;
     case 'Food prep table + Stone oven': return st.prep && st.oven;
+    case 'Cauldron + Stone oven': return st.cauldron >= r.level && st.oven;
+    case 'Stone oven': return st.oven;
     case 'Windmill': return st.mill;
+    case 'Mead ketill': return st.ketill;
   }
   return true;
 }
@@ -929,8 +946,9 @@ const mins = s => {
   if (!m) return `${x}s`;
   return x ? `${m}m ${x}s` : `${m}m`;
 };
-const stationLabel = r => r.station === 'Cauldron'
-  ? `Cauldron lv ${r.level}`
+const stationLabel = r =>
+    r.station === 'Cauldron' ? `Cauldron lv ${r.level}`
+  : r.station === 'Cauldron + Stone oven' ? `Cauldron lv ${r.level} + Oven`
   : (SHORT_STATION[r.station] || r.station);
 
 /* ───────── sidebar: inventory ───────── */
@@ -983,20 +1001,22 @@ function renderStations(){
   // Static totals so the numbers don't jump as you toggle. Counts everything a
   // station makes, intermediates included — otherwise the Windmill reads 0 when
   // its whole job is turning Barley into flour.
-  const tally = st => RECIPES.filter(r => r.station === st).length;
-  const cauldronAt = lvl => RECIPES.filter(r => r.station === 'Cauldron' && r.level <= lvl).length;
+  const tally = makes => RECIPES.filter(r => makes.includes(r.station)).length;
+  // Oven-finished batters are cauldron recipes too — the level gates them.
+  const inCauldron = r => r.station.startsWith('Cauldron');
+  const cauldronAt = lvl => RECIPES.filter(r => inCauldron(r) && r.level <= lvl).length;
 
   let html = '';
-  for (const s of STATIONS.slice(0,2)) html += srow(s, tally(s.station));
+  for (const s of STATIONS.slice(0,2)) html += srow(s, tally(s.makes));
   html += `<div class="crow">
       <div class="top"><span class="box" style="visibility:hidden"></span>
         <span class="nm">Cauldron</span>
-        <span class="cnt">${cauldronAt(S.st.cauldron)} / ${tally('Cauldron')} recipes</span></div>
-      <div class="lvl">${[0,1,2,3,4,5,6].map(l =>
+        <span class="cnt">${cauldronAt(S.st.cauldron)} / ${RECIPES.filter(inCauldron).length} recipes</span></div>
+      <div class="lvl">${Array.from({length:CAULDRON_MAX+1}, (_, l) => l).map(l =>
         `<button class="${S.st.cauldron===l?'on':''}" data-cl="${l}"
           title="${l ? 'Cauldron level '+l : "Don't have one"}">${l||'—'}</button>`).join('')}</div>
     </div>`;
-  for (const s of STATIONS.slice(2)) html += srow(s, tally(s.station));
+  for (const s of STATIONS.slice(2)) html += srow(s, tally(s.makes));
   document.getElementById('stations').innerHTML = html;
 
   const foods = RECIPES.filter(r => !r.intermediate);
@@ -1005,7 +1025,8 @@ function renderStations(){
   document.getElementById('stnHint').innerHTML =
     `Untick a station to hide everything it makes. Cauldron level rises with
      Spice rack (2), Butcher's table (3), Pots &amp; pans (4), Mortar &amp; pestle (5),
-     Rolling pins (6).`;
+     Rolling pins (6), Smoker (7). The Mead ketill here is the same one as on the
+     Mead tab — it also brews Oat milk.`;
 }
 function renderMeadStations(){
   // Every mead needs both, so each row's count is the whole list.
@@ -1195,21 +1216,21 @@ function meadCard({r, e}, idx){
 function footer(){
   if (isMead()) return `<div class="foot">
     Data scraped from the Valheim wiki —
-    <a href="https://valheim.fandom.com/wiki/Mead" target="_blank" rel="noopener">Mead</a>,
-    <a href="https://valheim.fandom.com/wiki/Mead_Ketill" target="_blank" rel="noopener">Mead Ketill</a>
-    and <a href="https://valheim.fandom.com/wiki/Fermenter" target="_blank" rel="noopener">Fermenter</a>
+    <a href="https://valheim.weirdgloop.org/w/Mead" target="_blank" rel="noopener">Mead</a>,
+    <a href="https://valheim.weirdgloop.org/w/Mead_Ketill" target="_blank" rel="noopener">Mead Ketill</a>
+    and <a href="https://valheim.weirdgloop.org/w/Fermenter" target="_blank" rel="noopener">Fermenter</a>
     pages. Icons © Iron Gate Studio.<br>
     A fermenter needs a roof and 70% cover to run, and one cycle takes ${esc(FERMENT)} —
     it holds a single base at a time, so queue the long ones first. Destroying a fermenter
     mid-cycle loses the base. The four Bog Witch reagents and Toadstool are the only
     mead ingredients you can't gather yourself.<br>
-    <a href="https://valheim.fandom.com/wiki/Love_potion" target="_blank" rel="noopener">Love potion</a>
+    <a href="https://valheim.weirdgloop.org/w/Love_Potion" target="_blank" rel="noopener">Love potion</a>
     isn't here: it's bought ready-made from The Bog Witch and has no ketill recipe.
   </div>`;
   return `<div class="foot">
-    Data scraped from the <a href="https://valheim.fandom.com/wiki/Food" target="_blank" rel="noopener">Valheim wiki</a>
-    — <a href="https://valheim.fandom.com/wiki/Cauldron" target="_blank" rel="noopener">Cauldron</a>,
-    <a href="https://valheim.fandom.com/wiki/Food_preparation_table" target="_blank" rel="noopener">Food preparation table</a>,
+    Data scraped from the <a href="https://valheim.weirdgloop.org/w/Food" target="_blank" rel="noopener">Valheim wiki</a>
+    — <a href="https://valheim.weirdgloop.org/w/Cauldron" target="_blank" rel="noopener">Cauldron</a>,
+    <a href="https://valheim.weirdgloop.org/w/Food_Preparation_Table" target="_blank" rel="noopener">Food preparation table</a>,
     Feast, Stone oven and Cooking station pages. Icons © Iron Gate Studio.<br>
     You can eat three different foods at once; buffs decay as
     <code>bonus × (time left / duration)^0.3</code>, so re-eat at around 50% remaining.
@@ -1252,7 +1273,7 @@ function renderControls(){
   // filters are narrowing the list.
   const d = DEFAULTS().st;
   const keys = mead ? ['ketill','ferment']
-                    : ['cook','iron','prep','oven','mill','cauldron'];
+                    : ['cook','iron','prep','oven','mill','ketill','cauldron'];
   const stationsChanged = keys.some(k => S.st[k] !== d[k]);
   const n = Object.values(S.inv).filter(v => v > 0).length
           + S.biomes.length + (mead ? S.kinds.length : 0) + (stationsChanged ? 1 : 0);
